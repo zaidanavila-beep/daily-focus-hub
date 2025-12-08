@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { DailyHeader } from '@/components/DailyHeader';
 import { DailyTimeline } from '@/components/DailyTimeline';
 import { TaskDialog } from '@/components/TaskDialog';
@@ -23,7 +23,6 @@ const Index = () => {
   );
 
   const today = new Date();
-  const completedCount = tasks.filter((t) => t.completed).length;
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
@@ -43,17 +42,22 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
+    <div className="min-h-screen bg-background mesh-background">
+      <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
         <DailyHeader
           date={today}
-          taskCount={tasks.length}
-          completedCount={completedCount}
+          tasks={tasks}
           onAddTask={() => handleAddTask()}
           onOpenSettings={() => setSettingsOpen(true)}
         />
 
-        <main className="bg-card rounded-2xl shadow-soft p-4 md:p-6">
+        <main className="widget-card mt-8 p-4 md:p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="font-serif text-xl">Today's Schedule</h2>
+            <span className="text-sm text-muted-foreground">
+              {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+            </span>
+          </div>
           <DailyTimeline
             tasks={tasks}
             onTaskClick={handleTaskClick}
@@ -62,7 +66,7 @@ const Index = () => {
         </main>
 
         <footer className="mt-8 text-center text-sm text-muted-foreground">
-          Click on a time slot to add a task
+          Click on any time slot to add a task • Use the toolbox for quick tools
         </footer>
       </div>
 
