@@ -1,69 +1,85 @@
-import { format } from 'date-fns';
-import { Calendar, Plus, Settings } from 'lucide-react';
+import { Plus, Settings, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { LiveClock } from './LiveClock';
+import { WeatherWidget } from './WeatherWidget';
+import { Greeting } from './Greeting';
+import { QuickStats } from './QuickStats';
+import { Task } from '@/types/task';
 
 interface DailyHeaderProps {
   date: Date;
-  taskCount: number;
-  completedCount: number;
+  tasks: Task[];
   onAddTask: () => void;
   onOpenSettings: () => void;
 }
 
 export const DailyHeader = ({
   date,
-  taskCount,
-  completedCount,
+  tasks,
   onAddTask,
   onOpenSettings,
 }: DailyHeaderProps) => {
+  const completedCount = tasks.filter((t) => t.completed).length;
+  const taskCount = tasks.length;
+
   return (
     <header className="mb-8 animate-fade-in">
-      <div className="flex items-start justify-between">
-        <div>
-          <div className="flex items-center gap-2 text-muted-foreground mb-1">
-            <Calendar className="w-4 h-4" />
-            <span className="text-sm font-medium uppercase tracking-wide">
-              {format(date, 'EEEE')}
-            </span>
+      {/* Top bar */}
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center gap-2">
+          <div className="w-10 h-10 rounded-xl gradient-bg flex items-center justify-center shadow-colored">
+            <Sparkles className="w-5 h-5 text-primary-foreground" />
           </div>
-          <h1 className="font-serif text-4xl md:text-5xl text-foreground">
-            {format(date, 'MMMM d')}
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            {taskCount === 0 ? (
-              'No tasks scheduled'
-            ) : (
-              <>
-                {completedCount} of {taskCount} tasks completed
-              </>
-            )}
-          </p>
+          <span className="font-semibold text-lg">DayFlow</span>
         </div>
-
         <div className="flex gap-2">
           <Button
-            variant="outline"
+            variant="ghost"
             size="icon"
             onClick={onOpenSettings}
-            className="shadow-soft"
+            className="rounded-xl"
           >
             <Settings className="w-5 h-5" />
           </Button>
-          <Button onClick={onAddTask} size="lg" className="gap-2 shadow-soft">
+          <Button onClick={onAddTask} className="gap-2 rounded-xl shadow-colored">
             <Plus className="w-5 h-5" />
             <span className="hidden sm:inline">Add Task</span>
           </Button>
         </div>
       </div>
 
+      {/* Main header content */}
+      <div className="grid md:grid-cols-2 gap-6 mb-8">
+        {/* Left: Greeting & Clock */}
+        <div className="space-y-6">
+          <Greeting date={date} />
+          <div className="widget-card">
+            <LiveClock />
+          </div>
+        </div>
+
+        {/* Right: Weather */}
+        <div className="flex flex-col justify-end">
+          <WeatherWidget />
+        </div>
+      </div>
+
+      {/* Stats */}
+      <QuickStats tasks={tasks} />
+
       {/* Progress bar */}
       {taskCount > 0 && (
-        <div className="mt-6 h-2 bg-secondary rounded-full overflow-hidden">
-          <div
-            className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
-            style={{ width: `${(completedCount / taskCount) * 100}%` }}
-          />
+        <div className="mt-6">
+          <div className="flex items-center justify-between text-sm mb-2">
+            <span className="text-muted-foreground">Daily Progress</span>
+            <span className="font-medium">{completedCount}/{taskCount} completed</span>
+          </div>
+          <div className="h-3 bg-secondary rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-700 ease-out gradient-bg"
+              style={{ width: `${(completedCount / taskCount) * 100}%` }}
+            />
+          </div>
         </div>
       )}
     </header>

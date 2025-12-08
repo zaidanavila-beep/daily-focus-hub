@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Delete } from 'lucide-react';
 
 export const Calculator = () => {
   const [display, setDisplay] = useState('0');
@@ -24,7 +23,6 @@ export const Calculator = () => {
   const handleEqual = () => {
     try {
       const fullEquation = equation + display;
-      // Safe eval using Function constructor
       const result = new Function('return ' + fullEquation.replace(/×/g, '*').replace(/÷/g, '/'))();
       setDisplay(String(parseFloat(result.toFixed(10))));
       setEquation('');
@@ -66,9 +64,9 @@ export const Calculator = () => {
   return (
     <div className="space-y-3">
       {/* Display */}
-      <div className="bg-secondary rounded-xl p-4">
-        <p className="text-xs text-muted-foreground h-4 text-right">{equation}</p>
-        <p className="text-3xl font-medium text-right truncate">{display}</p>
+      <div className="bg-secondary/50 rounded-2xl p-5">
+        <p className="text-xs text-muted-foreground h-5 text-right font-mono">{equation}</p>
+        <p className="text-4xl font-light text-right truncate tabular-nums">{display}</p>
       </div>
 
       {/* Buttons */}
@@ -77,7 +75,9 @@ export const Calculator = () => {
           <Button
             key={btn}
             variant={['÷', '×', '-', '+', '='].includes(btn) ? 'default' : 'secondary'}
-            className={`h-12 text-lg font-medium ${btn === '0' ? '' : ''}`}
+            className={`h-14 text-lg font-medium rounded-xl ${
+              btn === '=' ? 'gradient-bg' : ''
+            }`}
             onClick={() => {
               if (btn === 'C') handleClear();
               else if (btn === '⌫') handleBackspace();
