@@ -1,15 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DailyHeader } from '@/components/DailyHeader';
 import { DailyTimeline } from '@/components/DailyTimeline';
 import { TaskDialog } from '@/components/TaskDialog';
+import { SettingsDialog } from '@/components/SettingsDialog';
+import { ToolsMenu } from '@/components/ToolsMenu';
 import { useTasks } from '@/hooks/useTasks';
+import { useCustomColors } from '@/hooks/useCustomColors';
+import { useNotifications } from '@/hooks/useNotifications';
 import { Task } from '@/types/task';
 
 const Index = () => {
   const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasks();
+  const { colors, updateColor, resetColors } = useCustomColors();
+  const { requestPermission } = useNotifications(tasks);
+  
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [defaultHour, setDefaultHour] = useState<number | undefined>();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    typeof Notification !== 'undefined' && Notification.permission === 'granted'
+  );
 
   const today = new Date();
   const completedCount = tasks.filter((t) => t.completed).length;
@@ -26,6 +37,11 @@ const Index = () => {
     setDialogOpen(true);
   };
 
+  const handleEnableNotifications = async () => {
+    const granted = await requestPermission();
+    setNotificationsEnabled(granted);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="max-w-3xl mx-auto px-4 py-8 md:py-12">
@@ -34,6 +50,7 @@ const Index = () => {
           taskCount={tasks.length}
           completedCount={completedCount}
           onAddTask={() => handleAddTask()}
+          onOpenSettings={() => setSettingsOpen(true)}
         />
 
         <main className="bg-card rounded-2xl shadow-soft p-4 md:p-6">
@@ -59,6 +76,18 @@ const Index = () => {
         onDelete={deleteTask}
         onToggleComplete={toggleComplete}
       />
+
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        colors={colors}
+        onColorChange={updateColor}
+        onResetColors={resetColors}
+        notificationsEnabled={notificationsEnabled}
+        onEnableNotifications={handleEnableNotifications}
+      />
+
+      <ToolsMenu />
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import { format } from 'date-fns';
-import { Calendar, Plus } from 'lucide-react';
+import { Calendar, Plus, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DailyHeaderProps {
@@ -7,6 +7,7 @@ interface DailyHeaderProps {
   taskCount: number;
   completedCount: number;
   onAddTask: () => void;
+  onOpenSettings: () => void;
 }
 
 export const DailyHeader = ({
@@ -14,6 +15,7 @@ export const DailyHeader = ({
   taskCount,
   completedCount,
   onAddTask,
+  onOpenSettings,
 }: DailyHeaderProps) => {
   return (
     <header className="mb-8 animate-fade-in">
@@ -39,10 +41,20 @@ export const DailyHeader = ({
           </p>
         </div>
 
-        <Button onClick={onAddTask} size="lg" className="gap-2 shadow-soft">
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Add Task</span>
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={onOpenSettings}
+            className="shadow-soft"
+          >
+            <Settings className="w-5 h-5" />
+          </Button>
+          <Button onClick={onAddTask} size="lg" className="gap-2 shadow-soft">
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Add Task</span>
+          </Button>
+        </div>
       </div>
 
       {/* Progress bar */}
