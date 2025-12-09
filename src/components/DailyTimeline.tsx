@@ -5,7 +5,7 @@ import { TimeSlot } from './TimeSlot';
 interface DailyTimelineProps {
   tasks: Task[];
   onTaskClick: (task: Task) => void;
-  onAddTask: (hour: number) => void;
+  onAddTask: (hour: number, minute?: number) => void;
 }
 
 export const DailyTimeline = ({
@@ -18,7 +18,7 @@ export const DailyTimeline = ({
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-    }, 60000); // Update every minute
+    }, 30000); // Update every 30 seconds for smoother indicator
 
     return () => clearInterval(interval);
   }, []);
@@ -38,7 +38,7 @@ export const DailyTimeline = ({
 
   return (
     <div className="space-y-0 animate-slide-up">
-      {hours.map((hour, index) => (
+      {hours.map((hour) => (
         <TimeSlot
           key={hour}
           hour={hour}

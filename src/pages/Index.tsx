@@ -4,6 +4,11 @@ import { DailyTimeline } from '@/components/DailyTimeline';
 import { TaskDialog } from '@/components/TaskDialog';
 import { SettingsDialog } from '@/components/SettingsDialog';
 import { ToolsMenu } from '@/components/ToolsMenu';
+import { QuoteWidget } from '@/components/QuoteWidget';
+import { DailyFocus } from '@/components/DailyFocus';
+import { QuickLinks } from '@/components/QuickLinks';
+import { MiniCalendar } from '@/components/MiniCalendar';
+import { UpcomingTasks } from '@/components/UpcomingTasks';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -17,7 +22,7 @@ const Index = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [defaultHour, setDefaultHour] = useState<number | undefined>();
+  const [defaultTime, setDefaultTime] = useState<{ hour: number; minute: number } | undefined>();
   const [notificationsEnabled, setNotificationsEnabled] = useState(
     typeof Notification !== 'undefined' && Notification.permission === 'granted'
   );
@@ -26,13 +31,17 @@ const Index = () => {
 
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
-    setDefaultHour(undefined);
+    setDefaultTime(undefined);
     setDialogOpen(true);
   };
 
-  const handleAddTask = (hour?: number) => {
+  const handleAddTask = (hour?: number, minute?: number) => {
     setSelectedTask(null);
-    setDefaultHour(hour);
+    if (hour !== undefined) {
+      setDefaultTime({ hour, minute: minute ?? 0 });
+    } else {
+      setDefaultTime(undefined);
+    }
     setDialogOpen(true);
   };
 
@@ -43,7 +52,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background mesh-background">
-      <div className="max-w-4xl mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
         <DailyHeader
           date={today}
           tasks={tasks}
@@ -51,19 +60,38 @@ const Index = () => {
           onOpenSettings={() => setSettingsOpen(true)}
         />
 
-        <main className="widget-card mt-8 p-4 md:p-6">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="font-serif text-xl">Today's Schedule</h2>
-            <span className="text-sm text-muted-foreground">
-              {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
-            </span>
+        {/* New widgets row */}
+        <div className="grid md:grid-cols-2 gap-4 mb-6">
+          <DailyFocus />
+          <QuoteWidget />
+        </div>
+
+        {/* Main content grid */}
+        <div className="grid lg:grid-cols-3 gap-6">
+          {/* Left: Main schedule */}
+          <div className="lg:col-span-2">
+            <main className="widget-card p-4 md:p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="font-serif text-xl">Today's Schedule</h2>
+                <span className="text-sm text-muted-foreground">
+                  {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
+                </span>
+              </div>
+              <DailyTimeline
+                tasks={tasks}
+                onTaskClick={handleTaskClick}
+                onAddTask={handleAddTask}
+              />
+            </main>
           </div>
-          <DailyTimeline
-            tasks={tasks}
-            onTaskClick={handleTaskClick}
-            onAddTask={handleAddTask}
-          />
-        </main>
+
+          {/* Right: Sidebar widgets */}
+          <div className="space-y-4">
+            <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
+            <MiniCalendar />
+            <QuickLinks />
+          </div>
+        </div>
 
         <footer className="mt-8 text-center text-sm text-muted-foreground">
           Click on any time slot to add a task • Use the toolbox for quick tools
@@ -74,7 +102,7 @@ const Index = () => {
         open={dialogOpen}
         onOpenChange={setDialogOpen}
         task={selectedTask}
-        defaultHour={defaultHour}
+        defaultTime={defaultTime}
         onSave={addTask}
         onUpdate={updateTask}
         onDelete={deleteTask}
