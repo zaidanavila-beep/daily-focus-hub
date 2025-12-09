@@ -9,15 +9,21 @@ import { DailyFocus } from '@/components/DailyFocus';
 import { QuickLinks } from '@/components/QuickLinks';
 import { MiniCalendar } from '@/components/MiniCalendar';
 import { UpcomingTasks } from '@/components/UpcomingTasks';
+import { MusicPlayer } from '@/components/MusicPlayer';
+import { ThemePicker } from '@/components/ThemePicker';
+import { StudyResources } from '@/components/StudyResources';
+import { ProductivityInsights } from '@/components/ProductivityInsights';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
+import { useTheme } from '@/hooks/useTheme';
 import { Task } from '@/types/task';
 
 const Index = () => {
   const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasks();
   const { colors, updateColor, resetColors } = useCustomColors();
   const { requestPermission } = useNotifications(tasks);
+  const { theme, updateTheme, setPreset, resetTheme, presets } = useTheme();
   
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -51,8 +57,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background mesh-background">
-      <div className="max-w-6xl mx-auto px-4 py-8 md:py-12">
+    <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
+      <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
         <DailyHeader
           date={today}
           tasks={tasks}
@@ -70,7 +76,7 @@ const Index = () => {
         <div className="grid lg:grid-cols-3 gap-6">
           {/* Left: Main schedule */}
           <div className="lg:col-span-2">
-            <main className="widget-card p-4 md:p-6">
+            <main className="widget-card p-4 md:p-6 transition-all duration-500">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="font-serif text-xl">Today's Schedule</h2>
                 <span className="text-sm text-muted-foreground">
@@ -89,11 +95,21 @@ const Index = () => {
           <div className="space-y-4">
             <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
             <MiniCalendar />
+            <MusicPlayer />
+            <ThemePicker
+              theme={theme}
+              presets={presets}
+              onPresetSelect={setPreset}
+              onColorChange={updateTheme}
+              onReset={resetTheme}
+            />
+            <ProductivityInsights tasks={tasks} />
+            <StudyResources />
             <QuickLinks />
           </div>
         </div>
 
-        <footer className="mt-8 text-center text-sm text-muted-foreground">
+        <footer className="mt-8 text-center text-sm text-muted-foreground transition-colors duration-500">
           Click on any time slot to add a task • Use the toolbox for quick tools
         </footer>
       </div>
