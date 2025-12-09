@@ -5,9 +5,17 @@ import { cn } from '@/lib/utils';
 interface TaskBlockProps {
   task: Task;
   onClick: () => void;
+  showMinutes?: boolean;
 }
 
-export const TaskBlock = ({ task, onClick }: TaskBlockProps) => {
+const formatTime = (time: string): string => {
+  const [hours, minutes] = time.split(':').map(Number);
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
+  return `${displayHour}:${minutes.toString().padStart(2, '0')} ${period}`;
+};
+
+export const TaskBlock = ({ task, onClick, showMinutes }: TaskBlockProps) => {
   return (
     <div
       className={cn(
@@ -43,7 +51,7 @@ export const TaskBlock = ({ task, onClick }: TaskBlockProps) => {
           <div className="flex items-center gap-1.5 mt-1">
             <Clock className="w-3 h-3 text-muted-foreground" />
             <p className="text-xs text-muted-foreground">
-              {task.startTime} - {task.endTime}
+              {formatTime(task.startTime)} - {formatTime(task.endTime)}
             </p>
           </div>
           {task.description && (

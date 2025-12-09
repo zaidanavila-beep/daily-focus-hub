@@ -17,7 +17,7 @@ interface TaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   task?: Task | null;
-  defaultHour?: number;
+  defaultTime?: { hour: number; minute: number };
   onSave: (task: Omit<Task, 'id'>) => void;
   onUpdate: (id: string, task: Partial<Task>) => void;
   onDelete: (id: string) => void;
@@ -28,7 +28,7 @@ export const TaskDialog = ({
   open,
   onOpenChange,
   task,
-  defaultHour,
+  defaultTime,
   onSave,
   onUpdate,
   onDelete,
@@ -50,12 +50,15 @@ export const TaskDialog = ({
     } else {
       setTitle('');
       setDescription('');
-      const hour = defaultHour ?? 9;
-      setStartTime(`${hour.toString().padStart(2, '0')}:00`);
-      setEndTime(`${(hour + 1).toString().padStart(2, '0')}:00`);
+      const hour = defaultTime?.hour ?? 9;
+      const minute = defaultTime?.minute ?? 0;
+      setStartTime(`${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
+      // End time is 1 hour after start
+      const endHour = hour + 1;
+      setEndTime(`${endHour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`);
       setCategory('work');
     }
-  }, [task, defaultHour, open]);
+  }, [task, defaultTime, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
