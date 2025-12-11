@@ -2,327 +2,183 @@ import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Slider } from '@/components/ui/slider';
 import { 
   Music, 
-  Play, 
-  Pause, 
-  SkipBack, 
-  SkipForward, 
-  Volume2, 
-  VolumeX,
-  Plus,
-  Trash2,
+  Search,
+  Play,
   X,
-  List
+  ExternalLink,
+  Sparkles
 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface Track {
+interface SearchResult {
   id: string;
-  name: string;
-  url: string;
+  title: string;
+  thumbnail: string;
 }
 
-const STORAGE_KEY = 'music-player-data';
+// Popular study/chill playlists and lofi channels
+const SUGGESTED_SEARCHES = [
+  'lofi hip hop beats',
+  'study music playlist',
+  'chill beats to study',
+  'relaxing piano music',
+  'ambient focus music',
+  'jazz cafe music',
+];
+
+const QUICK_STATIONS = [
+  { name: 'Lofi Girl', videoId: 'jfKfPfyJRdk', color: 'from-purple-500 to-pink-500' },
+  { name: 'Chillhop', videoId: '5yx6BWlEVcY', color: 'from-orange-500 to-red-500' },
+  { name: 'Jazz Vibes', videoId: 'Dx5qFachd3A', color: 'from-amber-500 to-yellow-500' },
+  { name: 'Nature Sounds', videoId: 'eKFTSSKCzWA', color: 'from-green-500 to-emerald-500' },
+];
 
 export const MusicPlayer = () => {
-  const [tracks, setTracks] = useState<Track[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : [];
-  });
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.7);
-  const [isMuted, setIsMuted] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [showPlaylist, setShowPlaylist] = useState(false);
-  const [isAddingTrack, setIsAddingTrack] = useState(false);
-  const [newTrackName, setNewTrackName] = useState('');
-  const [newTrackUrl, setNewTrackUrl] = useState('');
-  
-  const audioRef = useRef<HTMLAudioElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
+  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
+  const [currentTitle, setCurrentTitle] = useState<string>('');
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(tracks));
-  }, [tracks]);
-
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume;
-    }
-  }, [volume, isMuted]);
-
-  const currentTrack = tracks[currentTrackIndex];
-
-  const togglePlay = () => {
-    if (!currentTrack) return;
-    if (isPlaying) {
-      audioRef.current?.pause();
-    } else {
-      audioRef.current?.play();
-    }
-    setIsPlaying(!isPlaying);
+  const handleSearch = () => {
+    if (!searchQuery.trim()) return;
+    // Open YouTube search in new tab
+    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' music')}`;
+    window.open(searchUrl, '_blank');
   };
 
-  const playPrevious = () => {
-    if (tracks.length === 0) return;
-    const newIndex = currentTrackIndex > 0 ? currentTrackIndex - 1 : tracks.length - 1;
-    setCurrentTrackIndex(newIndex);
-    setIsPlaying(true);
+  const playStation = (videoId: string, title: string) => {
+    setCurrentVideoId(videoId);
+    setCurrentTitle(title);
+    setShowPlayer(true);
+    setIsMinimized(false);
   };
 
-  const playNext = () => {
-    if (tracks.length === 0) return;
-    const newIndex = currentTrackIndex < tracks.length - 1 ? currentTrackIndex + 1 : 0;
-    setCurrentTrackIndex(newIndex);
-    setIsPlaying(true);
+  const closePlayer = () => {
+    setCurrentVideoId(null);
+    setShowPlayer(false);
+    setCurrentTitle('');
   };
-
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      const progress = (audioRef.current.currentTime / audioRef.current.duration) * 100;
-      setProgress(isNaN(progress) ? 0 : progress);
-    }
-  };
-
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!audioRef.current) return;
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const percentage = x / rect.width;
-    audioRef.current.currentTime = percentage * audioRef.current.duration;
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-    
-    Array.from(files).forEach(file => {
-      const url = URL.createObjectURL(file);
-      const track: Track = {
-        id: crypto.randomUUID(),
-        name: file.name.replace(/\.[^/.]+$/, ''),
-        url,
-      };
-      setTracks(prev => [...prev, track]);
-    });
-    
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-  };
-
-  const addUrlTrack = () => {
-    if (!newTrackName.trim() || !newTrackUrl.trim()) return;
-    const track: Track = {
-      id: crypto.randomUUID(),
-      name: newTrackName.trim(),
-      url: newTrackUrl.trim(),
-    };
-    setTracks(prev => [...prev, track]);
-    setNewTrackName('');
-    setNewTrackUrl('');
-    setIsAddingTrack(false);
-  };
-
-  const deleteTrack = (id: string) => {
-    const index = tracks.findIndex(t => t.id === id);
-    setTracks(prev => prev.filter(t => t.id !== id));
-    if (index <= currentTrackIndex && currentTrackIndex > 0) {
-      setCurrentTrackIndex(currentTrackIndex - 1);
-    }
-  };
-
-  const playTrack = (index: number) => {
-    setCurrentTrackIndex(index);
-    setIsPlaying(true);
-  };
-
-  useEffect(() => {
-    if (isPlaying && audioRef.current) {
-      audioRef.current.play();
-    }
-  }, [currentTrackIndex]);
 
   return (
-    <Card className="p-4 transition-all duration-500">
-      <audio
-        ref={audioRef}
-        src={currentTrack?.url}
-        onTimeUpdate={handleTimeUpdate}
-        onEnded={playNext}
-      />
-      <input
-        ref={fileInputRef}
-        type="file"
-        accept="audio/*"
-        multiple
-        onChange={handleFileUpload}
-        className="hidden"
-      />
-
+    <Card className="p-4 transition-all duration-500 overflow-hidden">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Music className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-medium text-sm">Music</span>
+          <span className="font-medium text-sm">Music Station</span>
         </div>
-        <div className="flex gap-1">
+        {showPlayer && (
           <Button
             size="icon"
             variant="ghost"
-            onClick={() => setShowPlaylist(!showPlaylist)}
-            className="h-8 w-8"
+            onClick={() => setIsMinimized(!isMinimized)}
+            className="h-7 w-7"
           >
-            <List className="w-4 h-4" />
+            {isMinimized ? <Play className="w-4 h-4" /> : <X className="w-4 h-4" />}
           </Button>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => fileInputRef.current?.click()}
-            className="h-8 w-8"
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
-        </div>
+        )}
       </div>
 
-      {/* Now Playing */}
-      <div className="text-center mb-3">
-        <p className="text-sm font-medium truncate">
-          {currentTrack?.name || 'No track selected'}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          {tracks.length} track{tracks.length !== 1 ? 's' : ''} in playlist
-        </p>
-      </div>
-
-      {/* Progress bar */}
-      <div
-        className="h-1.5 bg-secondary rounded-full mb-4 cursor-pointer overflow-hidden"
-        onClick={handleProgressClick}
-      >
-        <div
-          className="h-full bg-gradient-to-r from-primary to-accent rounded-full transition-all duration-150"
-          style={{ width: `${progress}%` }}
+      {/* Search */}
+      <div className="flex gap-2 mb-4">
+        <Input
+          placeholder="Search YouTube music..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+          className="h-9 text-sm"
         />
-      </div>
-
-      {/* Controls */}
-      <div className="flex items-center justify-center gap-2 mb-4">
-        <Button size="icon" variant="ghost" onClick={playPrevious} disabled={tracks.length === 0}>
-          <SkipBack className="w-4 h-4" />
-        </Button>
-        <Button
-          size="icon"
-          onClick={togglePlay}
-          disabled={tracks.length === 0}
-          className="w-10 h-10 rounded-full"
-        >
-          {isPlaying ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 ml-0.5" />}
-        </Button>
-        <Button size="icon" variant="ghost" onClick={playNext} disabled={tracks.length === 0}>
-          <SkipForward className="w-4 h-4" />
+        <Button size="icon" onClick={handleSearch} className="h-9 w-9 shrink-0">
+          <Search className="w-4 h-4" />
         </Button>
       </div>
 
-      {/* Volume */}
-      <div className="flex items-center gap-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => setIsMuted(!isMuted)}
-          className="h-8 w-8 shrink-0"
-        >
-          {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-        </Button>
-        <Slider
-          value={[isMuted ? 0 : volume * 100]}
-          onValueChange={([val]) => {
-            setVolume(val / 100);
-            setIsMuted(false);
-          }}
-          max={100}
-          step={1}
-          className="flex-1"
-        />
-      </div>
-
-      {/* Playlist */}
-      {showPlaylist && (
-        <div className="mt-4 pt-4 border-t">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-muted-foreground">Playlist</span>
-            <Button
-              size="sm"
-              variant="ghost"
-              onClick={() => setIsAddingTrack(!isAddingTrack)}
-              className="h-7 text-xs"
+      {/* Quick Stations */}
+      <div className="mb-4">
+        <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+          <Sparkles className="w-3 h-3" /> Quick Stations (Live)
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          {QUICK_STATIONS.map((station) => (
+            <button
+              key={station.videoId}
+              onClick={() => playStation(station.videoId, station.name)}
+              className={`p-2 rounded-lg bg-gradient-to-br ${station.color} text-white text-xs font-medium hover:opacity-90 transition-all hover:scale-105 active:scale-95`}
             >
-              {isAddingTrack ? <X className="w-3 h-3" /> : 'Add URL'}
+              {station.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* YouTube Player */}
+      {showPlayer && currentVideoId && !isMinimized && (
+        <div className="relative">
+          <div className="aspect-video rounded-lg overflow-hidden bg-black">
+            <iframe
+              width="100%"
+              height="100%"
+              src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&loop=1`}
+              title={currentTitle}
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs truncate flex-1">{currentTitle}</p>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={closePlayer}
+              className="h-6 w-6"
+            >
+              <X className="w-3 h-3" />
             </Button>
           </div>
-
-          {isAddingTrack && (
-            <div className="space-y-2 mb-3">
-              <Input
-                placeholder="Track name"
-                value={newTrackName}
-                onChange={(e) => setNewTrackName(e.target.value)}
-                className="h-8 text-sm"
-              />
-              <Input
-                placeholder="Audio URL"
-                value={newTrackUrl}
-                onChange={(e) => setNewTrackUrl(e.target.value)}
-                className="h-8 text-sm"
-              />
-              <Button size="sm" onClick={addUrlTrack} className="w-full h-8">
-                Add Track
-              </Button>
-            </div>
-          )}
-
-          <ScrollArea className="h-32">
-            <div className="space-y-1">
-              {tracks.length === 0 ? (
-                <p className="text-xs text-muted-foreground text-center py-4">
-                  No tracks yet. Click + to add music files.
-                </p>
-              ) : (
-                tracks.map((track, index) => (
-                  <div
-                    key={track.id}
-                    className={`flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-colors ${
-                      index === currentTrackIndex ? 'bg-primary/10' : 'hover:bg-secondary/50'
-                    }`}
-                    onClick={() => playTrack(index)}
-                  >
-                    <div className={`w-1.5 h-1.5 rounded-full ${
-                      index === currentTrackIndex && isPlaying ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30'
-                    }`} />
-                    <span className="text-sm truncate flex-1">{track.name}</span>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        deleteTrack(track.id);
-                      }}
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 hover:text-destructive"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </div>
-                ))
-              )}
-            </div>
-          </ScrollArea>
         </div>
       )}
+
+      {/* Now Playing Mini */}
+      {showPlayer && isMinimized && (
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+          <span className="text-xs truncate flex-1">Playing: {currentTitle}</span>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={closePlayer}
+            className="h-6 w-6"
+          >
+            <X className="w-3 h-3" />
+          </Button>
+        </div>
+      )}
+
+      {/* Suggested Searches */}
+      <div className="mt-3 pt-3 border-t">
+        <p className="text-xs text-muted-foreground mb-2">Try searching:</p>
+        <div className="flex flex-wrap gap-1">
+          {SUGGESTED_SEARCHES.slice(0, 4).map((term) => (
+            <button
+              key={term}
+              onClick={() => {
+                setSearchQuery(term);
+                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`;
+                window.open(searchUrl, '_blank');
+              }}
+              className="text-xs px-2 py-1 rounded-full bg-secondary/70 hover:bg-secondary transition-colors"
+            >
+              {term}
+            </button>
+          ))}
+        </div>
+      </div>
     </Card>
   );
 };
