@@ -21,59 +21,68 @@ import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useTheme } from '@/hooks/useTheme';
 import { Task } from '@/types/task';
-
 const Index = () => {
-  const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasks();
-  const { colors, updateColor, resetColors } = useCustomColors();
-  const { requestPermission } = useNotifications(tasks);
-  const { theme, updateTheme, setPreset, resetTheme, presets } = useTheme();
-  
+  const {
+    tasks,
+    addTask,
+    updateTask,
+    deleteTask,
+    toggleComplete
+  } = useTasks();
+  const {
+    colors,
+    updateColor,
+    resetColors
+  } = useCustomColors();
+  const {
+    requestPermission
+  } = useNotifications(tasks);
+  const {
+    theme,
+    updateTheme,
+    setPreset,
+    resetTheme,
+    presets
+  } = useTheme();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [defaultTime, setDefaultTime] = useState<{ hour: number; minute: number } | undefined>();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(
-    typeof Notification !== 'undefined' && Notification.permission === 'granted'
-  );
-
+  const [defaultTime, setDefaultTime] = useState<{
+    hour: number;
+    minute: number;
+  } | undefined>();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(typeof Notification !== 'undefined' && Notification.permission === 'granted');
   const today = new Date();
-
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setDefaultTime(undefined);
     setDialogOpen(true);
   };
-
   const handleAddTask = (hour?: number, minute?: number) => {
     setSelectedTask(null);
     if (hour !== undefined) {
-      setDefaultTime({ hour, minute: minute ?? 0 });
+      setDefaultTime({
+        hour,
+        minute: minute ?? 0
+      });
     } else {
       setDefaultTime(undefined);
     }
     setDialogOpen(true);
   };
-
   const handleEnableNotifications = async () => {
     const granted = await requestPermission();
     setNotificationsEnabled(granted);
   };
-
-  return (
-    <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
+  return <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-        <DailyHeader
-          date={today}
-          tasks={tasks}
-          onAddTask={() => handleAddTask()}
-          onOpenSettings={() => setSettingsOpen(true)}
-        />
+        <DailyHeader date={today} tasks={tasks} onAddTask={() => handleAddTask()} onOpenSettings={() => setSettingsOpen(true)} />
 
         {/* Top widgets row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <DailyFocus />
           <QuoteWidget />
-          <WeatherWidget />
+          
         </div>
 
         {/* Main content grid */}
@@ -94,24 +103,14 @@ const Index = () => {
                   {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
                 </span>
               </div>
-              <DailyTimeline
-                tasks={tasks}
-                onTaskClick={handleTaskClick}
-                onAddTask={handleAddTask}
-              />
+              <DailyTimeline tasks={tasks} onTaskClick={handleTaskClick} onAddTask={handleAddTask} />
             </main>
           </div>
 
           {/* Right sidebar */}
           <div className="lg:col-span-3 space-y-4 order-3">
             <MusicPlayer />
-            <ThemePicker
-              theme={theme}
-              presets={presets}
-              onPresetSelect={setPreset}
-              onColorChange={updateTheme}
-              onReset={resetTheme}
-            />
+            <ThemePicker theme={theme} presets={presets} onPresetSelect={setPreset} onColorChange={updateTheme} onReset={resetTheme} />
             <ProductivityInsights tasks={tasks} />
           </div>
         </div>
@@ -128,30 +127,11 @@ const Index = () => {
         </footer>
       </div>
 
-      <TaskDialog
-        open={dialogOpen}
-        onOpenChange={setDialogOpen}
-        task={selectedTask}
-        defaultTime={defaultTime}
-        onSave={addTask}
-        onUpdate={updateTask}
-        onDelete={deleteTask}
-        onToggleComplete={toggleComplete}
-      />
+      <TaskDialog open={dialogOpen} onOpenChange={setDialogOpen} task={selectedTask} defaultTime={defaultTime} onSave={addTask} onUpdate={updateTask} onDelete={deleteTask} onToggleComplete={toggleComplete} />
 
-      <SettingsDialog
-        open={settingsOpen}
-        onOpenChange={setSettingsOpen}
-        colors={colors}
-        onColorChange={updateColor}
-        onResetColors={resetColors}
-        notificationsEnabled={notificationsEnabled}
-        onEnableNotifications={handleEnableNotifications}
-      />
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} colors={colors} onColorChange={updateColor} onResetColors={resetColors} notificationsEnabled={notificationsEnabled} onEnableNotifications={handleEnableNotifications} />
 
       <ToolsMenu />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;

@@ -2,20 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { 
-  Music, 
-  Play,
-  Pause,
-  Volume2,
-  VolumeX,
-  CloudRain,
-  Wind,
-  Waves,
-  Flame,
-  Bird,
-  Coffee
-} from 'lucide-react';
-
+import { Music, Play, Pause, Volume2, VolumeX, CloudRain, Wind, Waves, Flame, Bird, Coffee } from 'lucide-react';
 interface AmbientSound {
   id: string;
   name: string;
@@ -24,28 +11,54 @@ interface AmbientSound {
   // Using free ambient sound URLs (royalty-free)
   frequencies: number[];
 }
-
-const AMBIENT_SOUNDS: AmbientSound[] = [
-  { id: 'rain', name: 'Rain', icon: CloudRain, color: 'from-blue-500 to-cyan-500', frequencies: [200, 400, 600] },
-  { id: 'wind', name: 'Wind', icon: Wind, color: 'from-gray-400 to-slate-500', frequencies: [100, 150, 200] },
-  { id: 'waves', name: 'Ocean', icon: Waves, color: 'from-teal-500 to-blue-500', frequencies: [80, 120, 160] },
-  { id: 'fire', name: 'Fire', icon: Flame, color: 'from-orange-500 to-red-500', frequencies: [180, 220, 280] },
-  { id: 'birds', name: 'Forest', icon: Bird, color: 'from-green-500 to-emerald-500', frequencies: [400, 600, 800] },
-  { id: 'cafe', name: 'Cafe', icon: Coffee, color: 'from-amber-500 to-yellow-600', frequencies: [250, 350, 450] },
-];
+const AMBIENT_SOUNDS: AmbientSound[] = [{
+  id: 'rain',
+  name: 'Rain',
+  icon: CloudRain,
+  color: 'from-blue-500 to-cyan-500',
+  frequencies: [200, 400, 600]
+}, {
+  id: 'wind',
+  name: 'Wind',
+  icon: Wind,
+  color: 'from-gray-400 to-slate-500',
+  frequencies: [100, 150, 200]
+}, {
+  id: 'waves',
+  name: 'Ocean',
+  icon: Waves,
+  color: 'from-teal-500 to-blue-500',
+  frequencies: [80, 120, 160]
+}, {
+  id: 'fire',
+  name: 'Fire',
+  icon: Flame,
+  color: 'from-orange-500 to-red-500',
+  frequencies: [180, 220, 280]
+}, {
+  id: 'birds',
+  name: 'Forest',
+  icon: Bird,
+  color: 'from-green-500 to-emerald-500',
+  frequencies: [400, 600, 800]
+}, {
+  id: 'cafe',
+  name: 'Cafe',
+  icon: Coffee,
+  color: 'from-amber-500 to-yellow-600',
+  frequencies: [250, 350, 450]
+}];
 
 // White/brown noise generator using Web Audio API
 const createNoiseGenerator = (audioContext: AudioContext, type: string, frequencies: number[]) => {
   const gainNode = audioContext.createGain();
   gainNode.gain.value = 0;
-  
   const oscillators: OscillatorNode[] = [];
   const filters: BiquadFilterNode[] = [];
-  
   frequencies.forEach((freq, i) => {
     const oscillator = audioContext.createOscillator();
     const filter = audioContext.createBiquadFilter();
-    
+
     // Create different noise characteristics
     if (type === 'rain' || type === 'wind') {
       // Brown noise-like
@@ -70,7 +83,7 @@ const createNoiseGenerator = (audioContext: AudioContext, type: string, frequenc
       filter.type = 'lowpass';
       filter.frequency.value = freq;
     }
-    
+
     // Add slight random variation
     const lfo = audioContext.createOscillator();
     const lfoGain = audioContext.createGain();
@@ -79,63 +92,60 @@ const createNoiseGenerator = (audioContext: AudioContext, type: string, frequenc
     lfo.connect(lfoGain);
     lfoGain.connect(oscillator.frequency);
     lfo.start();
-    
     oscillator.connect(filter);
     filter.connect(gainNode);
     oscillators.push(oscillator);
     filters.push(filter);
   });
-  
   gainNode.connect(audioContext.destination);
-  
-  return { gainNode, oscillators, filters };
+  return {
+    gainNode,
+    oscillators,
+    filters
+  };
 };
-
 export const MusicPlayer = () => {
   const [activeSound, setActiveSound] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [volume, setVolume] = useState(0.3);
   const [isMuted, setIsMuted] = useState(false);
-  
   const audioContextRef = useRef<AudioContext | null>(null);
-  const noiseRef = useRef<{ gainNode: GainNode; oscillators: OscillatorNode[]; filters: BiquadFilterNode[] } | null>(null);
-
+  const noiseRef = useRef<{
+    gainNode: GainNode;
+    oscillators: OscillatorNode[];
+    filters: BiquadFilterNode[];
+  } | null>(null);
   const startSound = (soundId: string) => {
     // Stop current sound if any
     stopSound();
-    
     const sound = AMBIENT_SOUNDS.find(s => s.id === soundId);
     if (!sound) return;
-    
+
     // Create audio context
     audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
     noiseRef.current = createNoiseGenerator(audioContextRef.current, sound.id, sound.frequencies);
-    
+
     // Start oscillators
     noiseRef.current.oscillators.forEach(osc => {
       osc.start();
     });
-    
+
     // Fade in
-    noiseRef.current.gainNode.gain.setTargetAtTime(
-      isMuted ? 0 : volume * 0.15,
-      audioContextRef.current.currentTime,
-      0.5
-    );
-    
+    noiseRef.current.gainNode.gain.setTargetAtTime(isMuted ? 0 : volume * 0.15, audioContextRef.current.currentTime, 0.5);
     setActiveSound(soundId);
     setIsPlaying(true);
   };
-
   const stopSound = () => {
     if (noiseRef.current && audioContextRef.current) {
       // Fade out
       noiseRef.current.gainNode.gain.setTargetAtTime(0, audioContextRef.current.currentTime, 0.3);
-      
+
       // Stop after fade
       setTimeout(() => {
         noiseRef.current?.oscillators.forEach(osc => {
-          try { osc.stop(); } catch (e) {}
+          try {
+            osc.stop();
+          } catch (e) {}
         });
         audioContextRef.current?.close();
         noiseRef.current = null;
@@ -145,7 +155,6 @@ export const MusicPlayer = () => {
     setIsPlaying(false);
     setActiveSound(null);
   };
-
   const toggleSound = (soundId: string) => {
     if (activeSound === soundId && isPlaying) {
       stopSound();
@@ -153,7 +162,6 @@ export const MusicPlayer = () => {
       startSound(soundId);
     }
   };
-
   useEffect(() => {
     if (noiseRef.current) {
       noiseRef.current.gainNode.gain.value = isMuted ? 0 : volume * 0.15;
@@ -166,86 +174,6 @@ export const MusicPlayer = () => {
       stopSound();
     };
   }, []);
-
   const activeAmbient = AMBIENT_SOUNDS.find(s => s.id === activeSound);
-
-  return (
-    <Card className="p-4 transition-all duration-500">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-            <Music className="w-4 h-4 text-primary-foreground" />
-          </div>
-          <div>
-            <span className="font-medium text-sm">Focus Sounds</span>
-            <p className="text-[10px] text-muted-foreground">Ambient noise for focus</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Sound buttons */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        {AMBIENT_SOUNDS.map((sound) => {
-          const Icon = sound.icon;
-          const isActive = activeSound === sound.id && isPlaying;
-          return (
-            <button
-              key={sound.id}
-              onClick={() => toggleSound(sound.id)}
-              className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-300 ${
-                isActive
-                  ? `bg-gradient-to-br ${sound.color} text-white shadow-lg scale-105`
-                  : 'bg-secondary/50 hover:bg-secondary hover:scale-102'
-              }`}
-            >
-              <Icon className={`w-5 h-5 ${isActive ? 'animate-pulse' : ''}`} />
-              <span className="text-[10px] font-medium">{sound.name}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      {/* Now Playing */}
-      {isPlaying && activeAmbient && (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30 mb-3">
-          <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs flex-1">Playing: {activeAmbient.name}</span>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={stopSound}
-            className="h-6 w-6"
-          >
-            <Pause className="w-3 h-3" />
-          </Button>
-        </div>
-      )}
-
-      {/* Volume control */}
-      <div className="flex items-center gap-2">
-        <Button
-          size="icon"
-          variant="ghost"
-          onClick={() => setIsMuted(!isMuted)}
-          className="h-8 w-8 shrink-0"
-        >
-          {isMuted || volume === 0 ? (
-            <VolumeX className="w-4 h-4" />
-          ) : (
-            <Volume2 className="w-4 h-4" />
-          )}
-        </Button>
-        <Slider
-          value={[isMuted ? 0 : volume * 100]}
-          onValueChange={([val]) => {
-            setVolume(val / 100);
-            setIsMuted(false);
-          }}
-          max={100}
-          step={1}
-          className="flex-1"
-        />
-      </div>
-    </Card>
-  );
+  return;
 };

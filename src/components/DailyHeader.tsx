@@ -5,25 +5,21 @@ import { WeatherWidget } from './WeatherWidget';
 import { Greeting } from './Greeting';
 import { QuickStats } from './QuickStats';
 import { Task } from '@/types/task';
-
 interface DailyHeaderProps {
   date: Date;
   tasks: Task[];
   onAddTask: () => void;
   onOpenSettings: () => void;
 }
-
 export const DailyHeader = ({
   date,
   tasks,
   onAddTask,
-  onOpenSettings,
+  onOpenSettings
 }: DailyHeaderProps) => {
-  const completedCount = tasks.filter((t) => t.completed).length;
+  const completedCount = tasks.filter(t => t.completed).length;
   const taskCount = tasks.length;
-
-  return (
-    <header className="mb-8 animate-fade-in">
+  return <header className="mb-8 animate-fade-in">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-8">
         <div className="flex items-center gap-2">
@@ -33,12 +29,7 @@ export const DailyHeader = ({
           <span className="font-semibold text-lg">DayFlow</span>
         </div>
         <div className="flex gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={onOpenSettings}
-            className="rounded-xl"
-          >
+          <Button variant="ghost" size="icon" onClick={onOpenSettings} className="rounded-xl">
             <Settings className="w-5 h-5" />
           </Button>
           <Button onClick={onAddTask} className="gap-2 rounded-xl shadow-colored">
@@ -60,7 +51,7 @@ export const DailyHeader = ({
 
         {/* Right: Weather */}
         <div className="flex flex-col justify-end">
-          <WeatherWidget />
+          <WeatherWidget className="text-secondary-foreground" />
         </div>
       </div>
 
@@ -68,20 +59,16 @@ export const DailyHeader = ({
       <QuickStats tasks={tasks} />
 
       {/* Progress bar */}
-      {taskCount > 0 && (
-        <div className="mt-6">
+      {taskCount > 0 && <div className="mt-6">
           <div className="flex items-center justify-between text-sm mb-2">
             <span className="text-muted-foreground">Daily Progress</span>
             <span className="font-medium">{completedCount}/{taskCount} completed</span>
           </div>
           <div className="h-3 bg-secondary rounded-full overflow-hidden">
-            <div
-              className="h-full rounded-full transition-all duration-700 ease-out gradient-bg"
-              style={{ width: `${(completedCount / taskCount) * 100}%` }}
-            />
+            <div className="h-full rounded-full transition-all duration-700 ease-out gradient-bg" style={{
+          width: `${completedCount / taskCount * 100}%`
+        }} />
           </div>
-        </div>
-      )}
-    </header>
-  );
+        </div>}
+    </header>;
 };
