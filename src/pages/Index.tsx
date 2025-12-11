@@ -15,6 +15,7 @@ import { MoodTracker } from '@/components/MoodTracker';
 import { DailyStreak } from '@/components/DailyStreak';
 import { QuickNotes } from '@/components/QuickNotes';
 import { BreathingExercise } from '@/components/BreathingExercise';
+import { WeatherWidget } from '@/components/WeatherWidget';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -60,7 +61,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
-      <div className="max-w-7xl mx-auto px-4 py-8 md:py-12">
+      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
         <DailyHeader
           date={today}
           tasks={tasks}
@@ -68,18 +69,26 @@ const Index = () => {
           onOpenSettings={() => setSettingsOpen(true)}
         />
 
-        {/* New widgets row */}
-        <div className="grid md:grid-cols-2 gap-4 mb-6">
+        {/* Top widgets row */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <DailyFocus />
           <QuoteWidget />
+          <WeatherWidget />
         </div>
 
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-3 gap-6">
-          {/* Left: Main schedule */}
-          <div className="lg:col-span-2">
+        <div className="grid lg:grid-cols-12 gap-4">
+          {/* Left sidebar */}
+          <div className="lg:col-span-3 space-y-4 order-2 lg:order-1">
+            <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
+            <MiniCalendar />
+            <DailyStreak />
+          </div>
+
+          {/* Center: Main schedule */}
+          <div className="lg:col-span-6 order-1 lg:order-2">
             <main className="widget-card p-4 md:p-6 transition-all duration-500">
-              <div className="flex items-center justify-between mb-6">
+              <div className="flex items-center justify-between mb-4">
                 <h2 className="font-serif text-xl">Today's Schedule</h2>
                 <span className="text-sm text-muted-foreground">
                   {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
@@ -93,10 +102,8 @@ const Index = () => {
             </main>
           </div>
 
-          {/* Right: Sidebar widgets */}
-          <div className="space-y-4">
-            <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
-            <MiniCalendar />
+          {/* Right sidebar */}
+          <div className="lg:col-span-3 space-y-4 order-3">
             <MusicPlayer />
             <ThemePicker
               theme={theme}
@@ -110,15 +117,14 @@ const Index = () => {
         </div>
 
         {/* Bottom widgets row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-          <DailyStreak />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
           <MoodTracker />
           <QuickNotes />
           <BreathingExercise />
         </div>
 
-        <footer className="mt-8 text-center text-sm text-muted-foreground transition-colors duration-500">
-          Click on any time slot to add a task • Use the toolbox for quick tools
+        <footer className="mt-6 text-center text-xs text-muted-foreground transition-colors duration-500">
+          Click on any time slot to add a task • Tasks auto-clear at midnight
         </footer>
       </div>
 
