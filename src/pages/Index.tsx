@@ -6,13 +6,15 @@ import { SettingsDialog } from '@/components/SettingsDialog';
 import { ToolsMenu } from '@/components/ToolsMenu';
 import { QuoteWidget } from '@/components/QuoteWidget';
 import { DailyFocus } from '@/components/DailyFocus';
-import { QuickLinks } from '@/components/QuickLinks';
 import { MiniCalendar } from '@/components/MiniCalendar';
 import { UpcomingTasks } from '@/components/UpcomingTasks';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import { ThemePicker } from '@/components/ThemePicker';
-import { StudyResources } from '@/components/StudyResources';
 import { ProductivityInsights } from '@/components/ProductivityInsights';
+import { MoodTracker } from '@/components/MoodTracker';
+import { DailyStreak } from '@/components/DailyStreak';
+import { QuickNotes } from '@/components/QuickNotes';
+import { BreathingExercise } from '@/components/BreathingExercise';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -104,9 +106,15 @@ const Index = () => {
               onReset={resetTheme}
             />
             <ProductivityInsights tasks={tasks} />
-            <StudyResources />
-            <QuickLinks />
           </div>
+        </div>
+
+        {/* Bottom widgets row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+          <DailyStreak />
+          <MoodTracker />
+          <QuickNotes />
+          <BreathingExercise />
         </div>
 
         <footer className="mt-8 text-center text-sm text-muted-foreground transition-colors duration-500">
