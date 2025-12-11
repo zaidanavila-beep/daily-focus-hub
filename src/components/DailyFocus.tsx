@@ -31,12 +31,7 @@ export const DailyFocus = () => {
     setIsEditing(false);
   };
   if (!focus && !isEditing) {
-    return <Card className="p-4 border-dashed cursor-pointer hover:border-primary/50 transition-colors" onClick={() => setIsEditing(true)}>
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <Target className="w-5 h-5" />
-          <span className="text-sm">Set your main focus for today...</span>
-        </div>
-      </Card>;
+    return;
   }
   if (isEditing) {
     return;
