@@ -80,6 +80,7 @@ export const TaskDialog = ({
         endTime,
         category,
         completed: false,
+        date: new Date().toDateString(),
       });
     }
     onOpenChange(false);

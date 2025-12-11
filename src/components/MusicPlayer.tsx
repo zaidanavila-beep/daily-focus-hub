@@ -1,183 +1,250 @@
 import { useState, useRef, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { Slider } from '@/components/ui/slider';
 import { 
   Music, 
-  Search,
   Play,
-  X,
-  ExternalLink,
-  Sparkles
+  Pause,
+  Volume2,
+  VolumeX,
+  CloudRain,
+  Wind,
+  Waves,
+  Flame,
+  Bird,
+  Coffee
 } from 'lucide-react';
-import { ScrollArea } from '@/components/ui/scroll-area';
 
-interface SearchResult {
+interface AmbientSound {
   id: string;
-  title: string;
-  thumbnail: string;
+  name: string;
+  icon: React.ElementType;
+  color: string;
+  // Using free ambient sound URLs (royalty-free)
+  frequencies: number[];
 }
 
-// Popular study/chill playlists and lofi channels
-const SUGGESTED_SEARCHES = [
-  'lofi hip hop beats',
-  'study music playlist',
-  'chill beats to study',
-  'relaxing piano music',
-  'ambient focus music',
-  'jazz cafe music',
+const AMBIENT_SOUNDS: AmbientSound[] = [
+  { id: 'rain', name: 'Rain', icon: CloudRain, color: 'from-blue-500 to-cyan-500', frequencies: [200, 400, 600] },
+  { id: 'wind', name: 'Wind', icon: Wind, color: 'from-gray-400 to-slate-500', frequencies: [100, 150, 200] },
+  { id: 'waves', name: 'Ocean', icon: Waves, color: 'from-teal-500 to-blue-500', frequencies: [80, 120, 160] },
+  { id: 'fire', name: 'Fire', icon: Flame, color: 'from-orange-500 to-red-500', frequencies: [180, 220, 280] },
+  { id: 'birds', name: 'Forest', icon: Bird, color: 'from-green-500 to-emerald-500', frequencies: [400, 600, 800] },
+  { id: 'cafe', name: 'Cafe', icon: Coffee, color: 'from-amber-500 to-yellow-600', frequencies: [250, 350, 450] },
 ];
 
-const QUICK_STATIONS = [
-  { name: 'Lofi Girl', videoId: 'jfKfPfyJRdk', color: 'from-purple-500 to-pink-500' },
-  { name: 'Chillhop', videoId: '5yx6BWlEVcY', color: 'from-orange-500 to-red-500' },
-  { name: 'Jazz Vibes', videoId: 'Dx5qFachd3A', color: 'from-amber-500 to-yellow-500' },
-  { name: 'Nature Sounds', videoId: 'eKFTSSKCzWA', color: 'from-green-500 to-emerald-500' },
-];
+// White/brown noise generator using Web Audio API
+const createNoiseGenerator = (audioContext: AudioContext, type: string, frequencies: number[]) => {
+  const gainNode = audioContext.createGain();
+  gainNode.gain.value = 0;
+  
+  const oscillators: OscillatorNode[] = [];
+  const filters: BiquadFilterNode[] = [];
+  
+  frequencies.forEach((freq, i) => {
+    const oscillator = audioContext.createOscillator();
+    const filter = audioContext.createBiquadFilter();
+    
+    // Create different noise characteristics
+    if (type === 'rain' || type === 'wind') {
+      // Brown noise-like
+      oscillator.type = 'sawtooth';
+      filter.type = 'lowpass';
+      filter.frequency.value = freq;
+      filter.Q.value = 0.5;
+    } else if (type === 'waves') {
+      // Low rumble
+      oscillator.type = 'sine';
+      filter.type = 'lowpass';
+      filter.frequency.value = freq;
+      oscillator.frequency.value = freq / 10;
+    } else if (type === 'fire') {
+      // Crackling
+      oscillator.type = 'triangle';
+      filter.type = 'bandpass';
+      filter.frequency.value = freq;
+    } else {
+      // General ambient
+      oscillator.type = 'sine';
+      filter.type = 'lowpass';
+      filter.frequency.value = freq;
+    }
+    
+    // Add slight random variation
+    const lfo = audioContext.createOscillator();
+    const lfoGain = audioContext.createGain();
+    lfo.frequency.value = 0.1 + Math.random() * 0.2;
+    lfoGain.gain.value = freq * 0.1;
+    lfo.connect(lfoGain);
+    lfoGain.connect(oscillator.frequency);
+    lfo.start();
+    
+    oscillator.connect(filter);
+    filter.connect(gainNode);
+    oscillators.push(oscillator);
+    filters.push(filter);
+  });
+  
+  gainNode.connect(audioContext.destination);
+  
+  return { gainNode, oscillators, filters };
+};
 
 export const MusicPlayer = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
-  const [currentVideoId, setCurrentVideoId] = useState<string | null>(null);
-  const [currentTitle, setCurrentTitle] = useState<string>('');
-  const [showPlayer, setShowPlayer] = useState(false);
-  const [isMinimized, setIsMinimized] = useState(false);
+  const [activeSound, setActiveSound] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [volume, setVolume] = useState(0.3);
+  const [isMuted, setIsMuted] = useState(false);
+  
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const noiseRef = useRef<{ gainNode: GainNode; oscillators: OscillatorNode[]; filters: BiquadFilterNode[] } | null>(null);
 
-  const handleSearch = () => {
-    if (!searchQuery.trim()) return;
-    // Open YouTube search in new tab
-    const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(searchQuery + ' music')}`;
-    window.open(searchUrl, '_blank');
+  const startSound = (soundId: string) => {
+    // Stop current sound if any
+    stopSound();
+    
+    const sound = AMBIENT_SOUNDS.find(s => s.id === soundId);
+    if (!sound) return;
+    
+    // Create audio context
+    audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)();
+    noiseRef.current = createNoiseGenerator(audioContextRef.current, sound.id, sound.frequencies);
+    
+    // Start oscillators
+    noiseRef.current.oscillators.forEach(osc => {
+      osc.start();
+    });
+    
+    // Fade in
+    noiseRef.current.gainNode.gain.setTargetAtTime(
+      isMuted ? 0 : volume * 0.15,
+      audioContextRef.current.currentTime,
+      0.5
+    );
+    
+    setActiveSound(soundId);
+    setIsPlaying(true);
   };
 
-  const playStation = (videoId: string, title: string) => {
-    setCurrentVideoId(videoId);
-    setCurrentTitle(title);
-    setShowPlayer(true);
-    setIsMinimized(false);
+  const stopSound = () => {
+    if (noiseRef.current && audioContextRef.current) {
+      // Fade out
+      noiseRef.current.gainNode.gain.setTargetAtTime(0, audioContextRef.current.currentTime, 0.3);
+      
+      // Stop after fade
+      setTimeout(() => {
+        noiseRef.current?.oscillators.forEach(osc => {
+          try { osc.stop(); } catch (e) {}
+        });
+        audioContextRef.current?.close();
+        noiseRef.current = null;
+        audioContextRef.current = null;
+      }, 500);
+    }
+    setIsPlaying(false);
+    setActiveSound(null);
   };
 
-  const closePlayer = () => {
-    setCurrentVideoId(null);
-    setShowPlayer(false);
-    setCurrentTitle('');
+  const toggleSound = (soundId: string) => {
+    if (activeSound === soundId && isPlaying) {
+      stopSound();
+    } else {
+      startSound(soundId);
+    }
   };
+
+  useEffect(() => {
+    if (noiseRef.current) {
+      noiseRef.current.gainNode.gain.value = isMuted ? 0 : volume * 0.15;
+    }
+  }, [volume, isMuted]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      stopSound();
+    };
+  }, []);
+
+  const activeAmbient = AMBIENT_SOUNDS.find(s => s.id === activeSound);
 
   return (
-    <Card className="p-4 transition-all duration-500 overflow-hidden">
-      <div className="flex items-center justify-between mb-3">
+    <Card className="p-4 transition-all duration-500">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center">
             <Music className="w-4 h-4 text-primary-foreground" />
           </div>
-          <span className="font-medium text-sm">Music Station</span>
+          <div>
+            <span className="font-medium text-sm">Focus Sounds</span>
+            <p className="text-[10px] text-muted-foreground">Ambient noise for focus</p>
+          </div>
         </div>
-        {showPlayer && (
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setIsMinimized(!isMinimized)}
-            className="h-7 w-7"
-          >
-            {isMinimized ? <Play className="w-4 h-4" /> : <X className="w-4 h-4" />}
-          </Button>
-        )}
       </div>
 
-      {/* Search */}
-      <div className="flex gap-2 mb-4">
-        <Input
-          placeholder="Search YouTube music..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
-          className="h-9 text-sm"
-        />
-        <Button size="icon" onClick={handleSearch} className="h-9 w-9 shrink-0">
-          <Search className="w-4 h-4" />
-        </Button>
-      </div>
-
-      {/* Quick Stations */}
-      <div className="mb-4">
-        <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-          <Sparkles className="w-3 h-3" /> Quick Stations (Live)
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          {QUICK_STATIONS.map((station) => (
+      {/* Sound buttons */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {AMBIENT_SOUNDS.map((sound) => {
+          const Icon = sound.icon;
+          const isActive = activeSound === sound.id && isPlaying;
+          return (
             <button
-              key={station.videoId}
-              onClick={() => playStation(station.videoId, station.name)}
-              className={`p-2 rounded-lg bg-gradient-to-br ${station.color} text-white text-xs font-medium hover:opacity-90 transition-all hover:scale-105 active:scale-95`}
+              key={sound.id}
+              onClick={() => toggleSound(sound.id)}
+              className={`flex flex-col items-center gap-1 p-3 rounded-xl transition-all duration-300 ${
+                isActive
+                  ? `bg-gradient-to-br ${sound.color} text-white shadow-lg scale-105`
+                  : 'bg-secondary/50 hover:bg-secondary hover:scale-102'
+              }`}
             >
-              {station.name}
+              <Icon className={`w-5 h-5 ${isActive ? 'animate-pulse' : ''}`} />
+              <span className="text-[10px] font-medium">{sound.name}</span>
             </button>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* YouTube Player */}
-      {showPlayer && currentVideoId && !isMinimized && (
-        <div className="relative">
-          <div className="aspect-video rounded-lg overflow-hidden bg-black">
-            <iframe
-              width="100%"
-              height="100%"
-              src={`https://www.youtube.com/embed/${currentVideoId}?autoplay=1&loop=1`}
-              title={currentTitle}
-              frameBorder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowFullScreen
-            />
-          </div>
-          <div className="flex items-center justify-between mt-2">
-            <p className="text-xs truncate flex-1">{currentTitle}</p>
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={closePlayer}
-              className="h-6 w-6"
-            >
-              <X className="w-3 h-3" />
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Now Playing Mini */}
-      {showPlayer && isMinimized && (
-        <div className="flex items-center gap-2 p-2 rounded-lg bg-secondary/50">
+      {/* Now Playing */}
+      {isPlaying && activeAmbient && (
+        <div className="flex items-center gap-2 p-2 rounded-lg bg-secondary/30 mb-3">
           <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-xs truncate flex-1">Playing: {currentTitle}</span>
+          <span className="text-xs flex-1">Playing: {activeAmbient.name}</span>
           <Button
             size="icon"
             variant="ghost"
-            onClick={closePlayer}
+            onClick={stopSound}
             className="h-6 w-6"
           >
-            <X className="w-3 h-3" />
+            <Pause className="w-3 h-3" />
           </Button>
         </div>
       )}
 
-      {/* Suggested Searches */}
-      <div className="mt-3 pt-3 border-t">
-        <p className="text-xs text-muted-foreground mb-2">Try searching:</p>
-        <div className="flex flex-wrap gap-1">
-          {SUGGESTED_SEARCHES.slice(0, 4).map((term) => (
-            <button
-              key={term}
-              onClick={() => {
-                setSearchQuery(term);
-                const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(term)}`;
-                window.open(searchUrl, '_blank');
-              }}
-              className="text-xs px-2 py-1 rounded-full bg-secondary/70 hover:bg-secondary transition-colors"
-            >
-              {term}
-            </button>
-          ))}
-        </div>
+      {/* Volume control */}
+      <div className="flex items-center gap-2">
+        <Button
+          size="icon"
+          variant="ghost"
+          onClick={() => setIsMuted(!isMuted)}
+          className="h-8 w-8 shrink-0"
+        >
+          {isMuted || volume === 0 ? (
+            <VolumeX className="w-4 h-4" />
+          ) : (
+            <Volume2 className="w-4 h-4" />
+          )}
+        </Button>
+        <Slider
+          value={[isMuted ? 0 : volume * 100]}
+          onValueChange={([val]) => {
+            setVolume(val / 100);
+            setIsMuted(false);
+          }}
+          max={100}
+          step={1}
+          className="flex-1"
+        />
       </div>
     </Card>
   );

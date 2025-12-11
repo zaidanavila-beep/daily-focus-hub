@@ -8,6 +8,7 @@ export interface Task {
   endTime: string; // HH:MM format
   category: CategoryType;
   completed: boolean;
+  date: string; // Date string for the task day
 }
 
 export interface Category {
