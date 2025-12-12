@@ -85,14 +85,20 @@ export const MoodTracker = () => {
       </div>
 
       <div className="flex justify-between pt-3 border-t border-border/50">
-        {weekDays.map((day, index) => (
-          <div key={index} className="text-center">
-            <span className="text-xs text-muted-foreground">{day}</span>
-            <div className="mt-1 text-lg">
-              {weekMoods[index] !== null ? MOODS[weekMoods[index]!].emoji : '·'}
+        {weekDays.map((day, index) => {
+          const moodIndex = weekMoods[index];
+          const mood = moodIndex !== null && moodIndex >= 0 && moodIndex < MOODS.length 
+            ? MOODS[moodIndex] 
+            : null;
+          return (
+            <div key={index} className="text-center">
+              <span className="text-xs text-muted-foreground">{day}</span>
+              <div className="mt-1 text-lg">
+                {mood ? mood.emoji : '·'}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </Card>
   );
