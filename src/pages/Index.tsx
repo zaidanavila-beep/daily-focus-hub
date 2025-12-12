@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { DailyHeader } from '@/components/DailyHeader';
 import { DailyTimeline } from '@/components/DailyTimeline';
 import { TaskDialog } from '@/components/TaskDialog';
@@ -15,74 +16,88 @@ import { MoodTracker } from '@/components/MoodTracker';
 import { DailyStreak } from '@/components/DailyStreak';
 import { QuickNotes } from '@/components/QuickNotes';
 import { BreathingExercise } from '@/components/BreathingExercise';
-import { WeatherWidget } from '@/components/WeatherWidget';
+import { MiniGames } from '@/components/MiniGames';
+import { FocusTimer } from '@/components/FocusTimer';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useTheme } from '@/hooks/useTheme';
+import { usePet } from '@/hooks/usePet';
 import { Task } from '@/types/task';
+import { Button } from '@/components/ui/button';
+import { Home } from 'lucide-react';
+import { toast } from 'sonner';
+
 const Index = () => {
-  const {
-    tasks,
-    addTask,
-    updateTask,
-    deleteTask,
-    toggleComplete
-  } = useTasks();
-  const {
-    colors,
-    updateColor,
-    resetColors
-  } = useCustomColors();
-  const {
-    requestPermission
-  } = useNotifications(tasks);
-  const {
-    theme,
-    updateTheme,
-    setPreset,
-    resetTheme,
-    presets
-  } = useTheme();
+  const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasks();
+  const { colors, updateColor, resetColors } = useCustomColors();
+  const { requestPermission } = useNotifications(tasks);
+  const { theme, updateTheme, setPreset, resetTheme, presets } = useTheme();
+  const { addXP } = usePet();
+
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
-  const [defaultTime, setDefaultTime] = useState<{
-    hour: number;
-    minute: number;
-  } | undefined>();
-  const [notificationsEnabled, setNotificationsEnabled] = useState(typeof Notification !== 'undefined' && Notification.permission === 'granted');
+  const [defaultTime, setDefaultTime] = useState<{ hour: number; minute: number } | undefined>();
+  const [notificationsEnabled, setNotificationsEnabled] = useState(
+    typeof Notification !== 'undefined' && Notification.permission === 'granted'
+  );
+
   const today = new Date();
+
   const handleTaskClick = (task: Task) => {
     setSelectedTask(task);
     setDefaultTime(undefined);
     setDialogOpen(true);
   };
+
   const handleAddTask = (hour?: number, minute?: number) => {
     setSelectedTask(null);
     if (hour !== undefined) {
-      setDefaultTime({
-        hour,
-        minute: minute ?? 0
-      });
+      setDefaultTime({ hour, minute: minute ?? 0 });
     } else {
       setDefaultTime(undefined);
     }
     setDialogOpen(true);
   };
+
   const handleEnableNotifications = async () => {
     const granted = await requestPermission();
     setNotificationsEnabled(granted);
   };
-  return <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
+
+  const handleToggleComplete = (taskId: string) => {
+    const task = tasks.find(t => t.id === taskId);
+    if (task && !task.completed) {
+      addXP(10);
+      toast.success('Task completed! +10 XP for your pet!');
+    }
+    toggleComplete(taskId);
+  };
+
+  return (
+    <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
       <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
-        <DailyHeader date={today} tasks={tasks} onAddTask={() => handleAddTask()} onOpenSettings={() => setSettingsOpen(true)} />
+        {/* Home Link */}
+        <Link to="/">
+          <Button variant="ghost" size="sm" className="mb-4 gap-2">
+            <Home className="w-4 h-4" />
+            Home
+          </Button>
+        </Link>
+
+        <DailyHeader
+          date={today}
+          tasks={tasks}
+          onAddTask={() => handleAddTask()}
+          onOpenSettings={() => setSettingsOpen(true)}
+        />
 
         {/* Top widgets row */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
           <DailyFocus />
           <QuoteWidget />
-          
+          <FocusTimer />
         </div>
 
         {/* Main content grid */}
@@ -92,6 +107,7 @@ const Index = () => {
             <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
             <MiniCalendar />
             <DailyStreak />
+            <MiniGames />
           </div>
 
           {/* Center: Main schedule */}
@@ -103,14 +119,24 @@ const Index = () => {
                   {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
                 </span>
               </div>
-              <DailyTimeline tasks={tasks} onTaskClick={handleTaskClick} onAddTask={handleAddTask} />
+              <DailyTimeline
+                tasks={tasks}
+                onTaskClick={handleTaskClick}
+                onAddTask={handleAddTask}
+              />
             </main>
           </div>
 
           {/* Right sidebar */}
           <div className="lg:col-span-3 space-y-4 order-3">
             <MusicPlayer />
-            <ThemePicker theme={theme} presets={presets} onPresetSelect={setPreset} onColorChange={updateTheme} onReset={resetTheme} />
+            <ThemePicker
+              theme={theme}
+              presets={presets}
+              onPresetSelect={setPreset}
+              onColorChange={updateTheme}
+              onReset={resetTheme}
+            />
             <ProductivityInsights tasks={tasks} />
           </div>
         </div>
@@ -127,11 +153,30 @@ const Index = () => {
         </footer>
       </div>
 
-      <TaskDialog open={dialogOpen} onOpenChange={setDialogOpen} task={selectedTask} defaultTime={defaultTime} onSave={addTask} onUpdate={updateTask} onDelete={deleteTask} onToggleComplete={toggleComplete} />
+      <TaskDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        task={selectedTask}
+        defaultTime={defaultTime}
+        onSave={addTask}
+        onUpdate={updateTask}
+        onDelete={deleteTask}
+        onToggleComplete={handleToggleComplete}
+      />
 
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} colors={colors} onColorChange={updateColor} onResetColors={resetColors} notificationsEnabled={notificationsEnabled} onEnableNotifications={handleEnableNotifications} />
+      <SettingsDialog
+        open={settingsOpen}
+        onOpenChange={setSettingsOpen}
+        colors={colors}
+        onColorChange={updateColor}
+        onResetColors={resetColors}
+        notificationsEnabled={notificationsEnabled}
+        onEnableNotifications={handleEnableNotifications}
+      />
 
       <ToolsMenu />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
