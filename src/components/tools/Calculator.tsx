@@ -2,10 +2,12 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { usePet } from '@/hooks/usePet';
 
 const SECRET_CODE = 'JimmySleepOver';
 
 export const Calculator = () => {
+  const { addXP } = usePet();
   const [display, setDisplay] = useState('0');
   const [equation, setEquation] = useState('');
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false);
@@ -73,7 +75,8 @@ export const Calculator = () => {
     if (secretInput === SECRET_CODE) {
       setSecretUnlocked(true);
       setShowSecretInput(false);
-      toast.success('🎉 Secret unlocked! Welcome to the inner circle!');
+      addXP(500);
+      toast.success('🎉 Secret unlocked! +500 XP for your pet!');
     } else {
       toast.error('Wrong code! Try again.');
       setSecretInput('');

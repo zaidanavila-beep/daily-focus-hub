@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { DailyHeader } from '@/components/DailyHeader';
 import { DailyTimeline } from '@/components/DailyTimeline';
@@ -18,6 +18,10 @@ import { QuickNotes } from '@/components/QuickNotes';
 import { BreathingExercise } from '@/components/BreathingExercise';
 import { MiniGames } from '@/components/MiniGames';
 import { FocusTimer } from '@/components/FocusTimer';
+import { DiceRoller } from '@/components/DiceRoller';
+import { ReactionGame } from '@/components/ReactionGame';
+import { CookieClicker } from '@/components/CookieClicker';
+import { WordScramble } from '@/components/WordScramble';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -94,10 +98,11 @@ const Index = () => {
         />
 
         {/* Top widgets row */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
           <DailyFocus />
           <QuoteWidget />
           <FocusTimer />
+          <DiceRoller />
         </div>
 
         {/* Main content grid */}
@@ -108,6 +113,7 @@ const Index = () => {
             <MiniCalendar />
             <DailyStreak />
             <MiniGames />
+            <WordScramble />
           </div>
 
           {/* Center: Main schedule */}
@@ -138,6 +144,8 @@ const Index = () => {
               onReset={resetTheme}
             />
             <ProductivityInsights tasks={tasks} />
+            <ReactionGame />
+            <CookieClicker />
           </div>
         </div>
 
@@ -149,7 +157,7 @@ const Index = () => {
         </div>
 
         <footer className="mt-6 text-center text-xs text-muted-foreground transition-colors duration-500">
-          Click on any time slot to add a task • Tasks auto-clear at midnight
+          Click on any time slot to add a task • Tasks auto-clear at midnight • Complete tasks to earn XP!
         </footer>
       </div>
 
