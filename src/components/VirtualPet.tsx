@@ -35,20 +35,42 @@ export const VirtualPet = () => {
     setIsEditingName(false);
   };
 
+  const getEquippedByType = (type: 'hat' | 'accessory' | 'outfit') => {
+    return pet.equippedClothing
+      .map(id => clothingItems.find(i => i.id === id))
+      .filter(item => item?.type === type)
+      .map(item => item?.emoji)
+      .join('');
+  };
+
   return (
     <Card className="widget-card p-6">
       {/* Pet Display */}
       <div className="text-center mb-6">
         <div className="relative inline-block">
-          <div className="text-8xl mb-2 animate-bounce-slow">
-            {pet.type}
+          {/* Hat on top */}
+          <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-3xl z-10">
+            {getEquippedByType('hat')}
           </div>
-          <div className="absolute -top-2 left-1/2 -translate-x-1/2 text-3xl">
-            {getEquippedEmojis()}
+          
+          {/* Pet with accessories around */}
+          <div className="relative">
+            <div className="text-8xl mb-2 animate-bounce-slow">
+              {pet.type}
+            </div>
+            {/* Accessories to the side */}
+            <div className="absolute top-1/2 -right-4 -translate-y-1/2 text-2xl">
+              {getEquippedByType('accessory')}
+            </div>
+          </div>
+          
+          {/* Outfit below */}
+          <div className="text-2xl -mt-2">
+            {getEquippedByType('outfit')}
           </div>
         </div>
 
-        <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="flex items-center justify-center gap-2 mb-2 mt-2">
           {isEditingName ? (
             <div className="flex items-center gap-2">
               <Input
@@ -77,14 +99,15 @@ export const VirtualPet = () => {
         <div className="mt-3 px-8">
           <div className="flex justify-between text-xs text-muted-foreground mb-1">
             <span>XP</span>
-            <span>{pet.xp} / {pet.level * 100}</span>
+            <span>{pet.xp} total</span>
           </div>
           <div className="h-2 bg-secondary rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-primary to-primary/70 transition-all duration-500"
-              style={{ width: `${(pet.xp % 100)}%` }}
+              style={{ width: `${Math.min((pet.xp % 100), 100)}%` }}
             />
           </div>
+          <p className="text-xs text-muted-foreground mt-1">{100 - (pet.xp % 100)} XP to next level</p>
         </div>
       </div>
 

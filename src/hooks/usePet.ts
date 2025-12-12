@@ -18,18 +18,29 @@ export interface Pet {
 }
 
 const CLOTHING_ITEMS: PetClothing[] = [
+  // Hats
   { id: 'crown', name: 'Crown', emoji: '👑', cost: 50, type: 'hat' },
   { id: 'tophat', name: 'Top Hat', emoji: '🎩', cost: 30, type: 'hat' },
   { id: 'cap', name: 'Cap', emoji: '🧢', cost: 20, type: 'hat' },
+  { id: 'party', name: 'Party Hat', emoji: '🥳', cost: 25, type: 'hat' },
+  { id: 'cowboy', name: 'Cowboy', emoji: '🤠', cost: 35, type: 'hat' },
+  { id: 'wizard', name: 'Wizard', emoji: '🧙', cost: 55, type: 'hat' },
+  // Accessories
   { id: 'ribbon', name: 'Ribbon', emoji: '🎀', cost: 15, type: 'accessory' },
   { id: 'glasses', name: 'Cool Glasses', emoji: '😎', cost: 25, type: 'accessory' },
   { id: 'bowtie', name: 'Bow Tie', emoji: '🎗️', cost: 20, type: 'accessory' },
-  { id: 'scarf', name: 'Scarf', emoji: '🧣', cost: 35, type: 'outfit' },
-  { id: 'cape', name: 'Cape', emoji: '🦸', cost: 60, type: 'outfit' },
   { id: 'sparkles', name: 'Sparkles', emoji: '✨', cost: 40, type: 'accessory' },
   { id: 'star', name: 'Star Badge', emoji: '⭐', cost: 45, type: 'accessory' },
   { id: 'flower', name: 'Flower', emoji: '🌸', cost: 15, type: 'accessory' },
-  { id: 'party', name: 'Party Hat', emoji: '🥳', cost: 25, type: 'hat' },
+  { id: 'heart', name: 'Heart', emoji: '❤️', cost: 20, type: 'accessory' },
+  { id: 'music', name: 'Music', emoji: '🎵', cost: 30, type: 'accessory' },
+  { id: 'rainbow', name: 'Rainbow', emoji: '🌈', cost: 50, type: 'accessory' },
+  // Outfits
+  { id: 'scarf', name: 'Scarf', emoji: '🧣', cost: 35, type: 'outfit' },
+  { id: 'cape', name: 'Cape', emoji: '🦸', cost: 60, type: 'outfit' },
+  { id: 'ninja', name: 'Ninja', emoji: '🥷', cost: 70, type: 'outfit' },
+  { id: 'astronaut', name: 'Astronaut', emoji: '👨‍🚀', cost: 80, type: 'outfit' },
+  { id: 'king', name: 'Royal', emoji: '🤴', cost: 90, type: 'outfit' },
 ];
 
 const PET_TYPES = ['🐱', '🐶', '🐰', '🐻', '🐼', '🦊', '🐨', '🐯'];
