@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePet } from '@/hooks/usePet';
 import { Brain, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -17,7 +16,6 @@ const TRIVIA = [
 ];
 
 export const TriviaQuiz = () => {
-  const { addXP } = usePet();
   const [current, setCurrent] = useState(() => Math.floor(Math.random() * TRIVIA.length));
   const [selected, setSelected] = useState<string | null>(null);
   const [score, setScore] = useState(0);
@@ -28,8 +26,7 @@ export const TriviaQuiz = () => {
     setSelected(answer);
     if (answer === trivia.a) {
       setScore(s => s + 1);
-      addXP(15);
-      toast.success('+15 XP! Correct!');
+      toast.success('Correct!');
     } else {
       toast.error(`Wrong! It was ${trivia.a}`);
     }

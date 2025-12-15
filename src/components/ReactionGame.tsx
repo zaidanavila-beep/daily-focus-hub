@@ -2,11 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Zap, RotateCcw } from 'lucide-react';
-import { usePet } from '@/hooks/usePet';
-import { toast } from 'sonner';
 
 export const ReactionGame = () => {
-  const { addXP } = usePet();
   const [gameState, setGameState] = useState<'waiting' | 'ready' | 'go' | 'result' | 'early'>('waiting');
   const [startTime, setStartTime] = useState(0);
   const [reactionTime, setReactionTime] = useState(0);
@@ -41,11 +38,6 @@ export const ReactionGame = () => {
       if (time < bestTime) {
         setBestTime(time);
         localStorage.setItem('reaction-best', time.toString());
-        addXP(10);
-        toast.success(`🏆 New record! +10 XP`);
-      } else if (time < 300) {
-        addXP(3);
-        toast.success(`⚡ Fast reaction! +3 XP`);
       }
     }
   };

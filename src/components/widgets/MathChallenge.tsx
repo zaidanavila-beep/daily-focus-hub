@@ -2,12 +2,10 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { usePet } from '@/hooks/usePet';
 import { Calculator, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 export const MathChallenge = () => {
-  const { addXP } = usePet();
   const [num1, setNum1] = useState(0);
   const [num2, setNum2] = useState(0);
   const [operator, setOperator] = useState('+');
@@ -44,16 +42,14 @@ export const MathChallenge = () => {
       setTimeLeft(t => {
         if (t <= 1) {
           setIsPlaying(false);
-          const xp = score * 2 + streak;
-          addXP(xp);
-          toast.success(`Time's up! +${xp} XP`);
+          toast.success(`Time's up! Score: ${score}`);
           return 0;
         }
         return t - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [isPlaying, timeLeft]);
+  }, [isPlaying, timeLeft, score]);
 
   const checkAnswer = () => {
     if (parseInt(answer) === getCorrectAnswer()) {

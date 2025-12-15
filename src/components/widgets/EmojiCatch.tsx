@@ -1,15 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePet } from '@/hooks/usePet';
 import { Target, RotateCcw } from 'lucide-react';
-import { toast } from 'sonner';
 
 const EMOJIS = ['🍎', '🍊', '🍋', '🍇', '🍓', '🍒', '🥝', '🍑'];
 const BOMB = '💣';
 
 export const EmojiCatch = () => {
-  const { addXP } = usePet();
   const [items, setItems] = useState<{ id: number; emoji: string; x: number; y: number }[]>([]);
   const [score, setScore] = useState(0);
   const [lives, setLives] = useState(3);
@@ -19,12 +16,7 @@ export const EmojiCatch = () => {
   const spawnItem = useCallback(() => {
     const isBomb = Math.random() < 0.2;
     const emoji = isBomb ? BOMB : EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
-    const newItem = {
-      id: nextId,
-      emoji,
-      x: Math.random() * 80 + 10,
-      y: -10,
-    };
+    const newItem = { id: nextId, emoji, x: Math.random() * 80 + 10, y: -10 };
     setNextId(id => id + 1);
     setItems(prev => [...prev, newItem]);
   }, [nextId]);
@@ -44,11 +36,7 @@ export const EmojiCatch = () => {
         if (missed.length > 0) {
           setLives(l => {
             const newLives = l - missed.length;
-            if (newLives <= 0) {
-              setIsPlaying(false);
-              addXP(Math.floor(score / 2));
-              toast.info(`Game Over! +${Math.floor(score / 2)} XP`);
-            }
+            if (newLives <= 0) setIsPlaying(false);
             return Math.max(0, newLives);
           });
         }
@@ -61,11 +49,7 @@ export const EmojiCatch = () => {
   const catchItem = (id: number, emoji: string) => {
     if (emoji === BOMB) {
       setLives(l => {
-        if (l <= 1) {
-          setIsPlaying(false);
-          addXP(Math.floor(score / 2));
-          toast.info(`Boom! +${Math.floor(score / 2)} XP`);
-        }
+        if (l <= 1) setIsPlaying(false);
         return l - 1;
       });
     } else {

@@ -9,7 +9,6 @@ import {
   CheckCircle2, 
   Clock, 
   Flame, 
-  Trophy, 
   ArrowRight,
   Sparkles,
   Target
@@ -60,17 +59,14 @@ const HomePage = () => {
           <div className="space-y-6">
             <VirtualPet />
 
-            {/* Quick Actions */}
-            <Card className="widget-card p-4">
-              <h3 className="font-medium mb-4 flex items-center gap-2">
-                <Trophy className="w-4 h-4 text-primary" />
-                Earn XP
-              </h3>
-              <div className="space-y-2 text-sm text-muted-foreground">
-                <p>🎯 Complete a task: <span className="text-primary font-medium">+10 XP</span></p>
-                <p>📅 Log in daily: <span className="text-primary font-medium">+5 XP</span></p>
-                <p>🔥 Maintain streak: <span className="text-primary font-medium">+2 XP per day</span></p>
-                <p>✅ 100% completion: <span className="text-primary font-medium">+25 XP bonus</span></p>
+            {/* Pet Info Card */}
+            <Card className="widget-card p-4 bg-gradient-to-r from-primary/10 to-primary/5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-muted-foreground">Your companion</p>
+                  <p className="text-2xl font-bold">{pet.name}</p>
+                </div>
+                <div className="text-5xl">{pet.type}</div>
               </div>
             </Card>
           </div>
@@ -141,17 +137,6 @@ const HomePage = () => {
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
-
-            {/* Pet Level Card */}
-            <Card className="widget-card p-4 bg-gradient-to-r from-primary/10 to-primary/5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-muted-foreground">Your pet's level</p>
-                  <p className="text-2xl font-bold">Level {pet.level}</p>
-                </div>
-                <div className="text-5xl">{pet.type}</div>
-              </div>
-            </Card>
           </div>
         </div>
       </div>

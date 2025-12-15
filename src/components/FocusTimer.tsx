@@ -2,12 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Timer, Play, Pause, RotateCcw } from 'lucide-react';
-import { usePet } from '@/hooks/usePet';
 import { toast } from 'sonner';
 
 export const FocusTimer = () => {
-  const { addXP } = usePet();
-  const [timeLeft, setTimeLeft] = useState(5 * 60); // 5 minutes
+  const [timeLeft, setTimeLeft] = useState(5 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [selectedTime, setSelectedTime] = useState(5);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -21,9 +19,7 @@ export const FocusTimer = () => {
       }, 1000);
     } else if (timeLeft === 0 && isRunning) {
       setIsRunning(false);
-      const xpEarned = selectedTime * 2;
-      addXP(xpEarned);
-      toast.success(`🎯 Focus session complete! +${xpEarned} XP`);
+      toast.success(`🎯 Focus session complete!`);
     }
 
     return () => {

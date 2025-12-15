@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Shuffle, RotateCcw } from 'lucide-react';
-import { usePet } from '@/hooks/usePet';
 import { toast } from 'sonner';
 
 const WORDS = [
@@ -11,12 +10,10 @@ const WORDS = [
 ];
 
 export const WordScramble = () => {
-  const { addXP } = usePet();
   const [currentWord, setCurrentWord] = useState('');
   const [scrambled, setScrambled] = useState('');
   const [userGuess, setUserGuess] = useState('');
   const [score, setScore] = useState(0);
-  const [showHint, setShowHint] = useState(false);
 
   const scrambleWord = (word: string) => {
     return word.split('').sort(() => Math.random() - 0.5).join('');
@@ -31,7 +28,6 @@ export const WordScramble = () => {
     }
     setScrambled(scrambledWord);
     setUserGuess('');
-    setShowHint(false);
   };
 
   useEffect(() => {
@@ -45,8 +41,7 @@ export const WordScramble = () => {
     if (newGuess.length === currentWord.length) {
       if (newGuess === currentWord) {
         setScore(prev => prev + 1);
-        addXP(5);
-        toast.success('🎉 Correct! +5 XP');
+        toast.success('🎉 Correct!');
         setTimeout(newWord, 1000);
       } else {
         toast.error('Try again!');
