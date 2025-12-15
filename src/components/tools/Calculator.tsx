@@ -2,12 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
-import { usePet } from '@/hooks/usePet';
 
 const SECRET_CODE = 'JimmySleepOver';
 
 export const Calculator = () => {
-  const { addXP } = usePet();
   const [display, setDisplay] = useState('0');
   const [equation, setEquation] = useState('');
   const [shouldResetDisplay, setShouldResetDisplay] = useState(false);
@@ -30,7 +28,6 @@ export const Calculator = () => {
   };
 
   const handleEqual = () => {
-    // Check for secret trigger
     if (display === '67') {
       setShowSecretInput(true);
       setDisplay('0');
@@ -75,8 +72,7 @@ export const Calculator = () => {
     if (secretInput === SECRET_CODE) {
       setSecretUnlocked(true);
       setShowSecretInput(false);
-      addXP(500);
-      toast.success('🎉 Secret unlocked! +500 XP for your pet!');
+      toast.success('🎉 Secret unlocked! Welcome to the club!');
     } else {
       toast.error('Wrong code! Try again.');
       setSecretInput('');
@@ -102,7 +98,6 @@ export const Calculator = () => {
           </p>
           <div className="space-y-2 text-sm">
             <p>🌟 You're now a VIP member</p>
-            <p>🎮 +100 bonus XP for your pet!</p>
             <p>🏆 Secret achievement unlocked</p>
           </div>
         </div>

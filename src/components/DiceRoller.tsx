@@ -1,12 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dices, RotateCcw } from 'lucide-react';
-import { usePet } from '@/hooks/usePet';
-import { toast } from 'sonner';
+import { Dices } from 'lucide-react';
 
 export const DiceRoller = () => {
-  const { addXP } = usePet();
   const [dice, setDice] = useState<number[]>([1, 1]);
   const [isRolling, setIsRolling] = useState(false);
   const [rollCount, setRollCount] = useState(0);
@@ -16,7 +13,6 @@ export const DiceRoller = () => {
     setIsRolling(true);
     setRollCount(prev => prev + 1);
 
-    // Animate rolling
     let rolls = 0;
     const interval = setInterval(() => {
       setDice([
@@ -32,12 +28,6 @@ export const DiceRoller = () => {
         ];
         setDice(final);
         setIsRolling(false);
-
-        // Bonus for doubles!
-        if (final[0] === final[1]) {
-          addXP(5);
-          toast.success(`🎲 Doubles! +5 XP`);
-        }
       }
     }, 50);
   };

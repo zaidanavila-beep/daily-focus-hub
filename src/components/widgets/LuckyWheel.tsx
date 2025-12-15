@@ -1,23 +1,21 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePet } from '@/hooks/usePet';
 import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PRIZES = [
-  { text: '5 XP', xp: 5, color: 'bg-red-500' },
-  { text: '10 XP', xp: 10, color: 'bg-blue-500' },
-  { text: '15 XP', xp: 15, color: 'bg-green-500' },
-  { text: '20 XP', xp: 20, color: 'bg-yellow-500' },
-  { text: '25 XP', xp: 25, color: 'bg-purple-500' },
-  { text: '50 XP', xp: 50, color: 'bg-pink-500' },
-  { text: '1 XP', xp: 1, color: 'bg-gray-500' },
-  { text: '100 XP', xp: 100, color: 'bg-orange-500' },
+  { text: '🌟', color: 'bg-red-500' },
+  { text: '⭐', color: 'bg-blue-500' },
+  { text: '✨', color: 'bg-green-500' },
+  { text: '💫', color: 'bg-yellow-500' },
+  { text: '🎉', color: 'bg-purple-500' },
+  { text: '🎊', color: 'bg-pink-500' },
+  { text: '🌈', color: 'bg-gray-500' },
+  { text: '🏆', color: 'bg-orange-500' },
 ];
 
 export const LuckyWheel = () => {
-  const { addXP } = usePet();
   const [rotation, setRotation] = useState(0);
   const [isSpinning, setIsSpinning] = useState(false);
   const [lastSpin, setLastSpin] = useState(() => {
@@ -25,13 +23,13 @@ export const LuckyWheel = () => {
     return stored ? new Date(stored) : null;
   });
 
-  const canSpin = !lastSpin || (new Date().getTime() - lastSpin.getTime()) > 3600000; // 1 hour
+  const canSpin = !lastSpin || (new Date().getTime() - lastSpin.getTime()) > 3600000;
 
   const spin = () => {
     if (!canSpin || isSpinning) return;
     
     setIsSpinning(true);
-    const spins = 5 + Math.random() * 5; // 5-10 full spins
+    const spins = 5 + Math.random() * 5;
     const prizeIndex = Math.floor(Math.random() * PRIZES.length);
     const prizeAngle = (prizeIndex / PRIZES.length) * 360;
     const newRotation = rotation + (spins * 360) + (360 - prizeAngle);
@@ -41,7 +39,6 @@ export const LuckyWheel = () => {
     setTimeout(() => {
       setIsSpinning(false);
       const prize = PRIZES[prizeIndex];
-      addXP(prize.xp);
       toast.success(`🎉 You won ${prize.text}!`);
       
       const now = new Date();

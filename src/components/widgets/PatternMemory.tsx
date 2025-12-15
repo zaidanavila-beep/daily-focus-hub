@@ -1,14 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePet } from '@/hooks/usePet';
 import { Grid3X3, RotateCcw } from 'lucide-react';
 import { toast } from 'sonner';
 
 const COLORS = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500'];
 
 export const PatternMemory = () => {
-  const { addXP } = usePet();
   const [pattern, setPattern] = useState<number[]>([]);
   const [userPattern, setUserPattern] = useState<number[]>([]);
   const [isShowing, setIsShowing] = useState(false);
@@ -47,20 +45,15 @@ export const PatternMemory = () => {
     const newUserPattern = [...userPattern, index];
     setUserPattern(newUserPattern);
     
-    // Flash the button
     setActiveIndex(index);
     setTimeout(() => setActiveIndex(null), 200);
     
-    // Check if correct so far
     if (pattern[newUserPattern.length - 1] !== index) {
       setGameState('gameover');
-      const xp = (level - 1) * 5;
-      addXP(xp);
-      toast.error(`Wrong! +${xp} XP`);
+      toast.error(`Wrong! Level ${level - 1}`);
       return;
     }
     
-    // Check if pattern complete
     if (newUserPattern.length === pattern.length) {
       const newLevel = level + 1;
       setLevel(newLevel);

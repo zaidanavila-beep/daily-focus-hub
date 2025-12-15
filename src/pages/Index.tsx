@@ -9,12 +9,10 @@ import { QuoteWidget } from '@/components/QuoteWidget';
 import { DailyFocus } from '@/components/DailyFocus';
 import { MiniCalendar } from '@/components/MiniCalendar';
 import { UpcomingTasks } from '@/components/UpcomingTasks';
-import { MusicPlayer } from '@/components/MusicPlayer';
 import { ThemePicker } from '@/components/ThemePicker';
 import { ProductivityInsights } from '@/components/ProductivityInsights';
 import { MoodTracker } from '@/components/MoodTracker';
 import { DailyStreak } from '@/components/DailyStreak';
-import { QuickNotes } from '@/components/QuickNotes';
 import { BreathingExercise } from '@/components/BreathingExercise';
 import { MiniGames } from '@/components/MiniGames';
 import { FocusTimer } from '@/components/FocusTimer';
@@ -22,7 +20,6 @@ import { DiceRoller } from '@/components/DiceRoller';
 import { ReactionGame } from '@/components/ReactionGame';
 import { CookieClicker } from '@/components/CookieClicker';
 import { WordScramble } from '@/components/WordScramble';
-// New widgets
 import { CountdownTimer } from '@/components/widgets/CountdownTimer';
 import { TriviaQuiz } from '@/components/widgets/TriviaQuiz';
 import { TypingSpeed } from '@/components/widgets/TypingSpeed';
@@ -37,18 +34,15 @@ import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useTheme } from '@/hooks/useTheme';
-import { usePet } from '@/hooks/usePet';
 import { Task } from '@/types/task';
 import { Button } from '@/components/ui/button';
 import { Home } from 'lucide-react';
-import { toast } from 'sonner';
 
 const Index = () => {
   const { tasks, addTask, updateTask, deleteTask, toggleComplete } = useTasks();
   const { colors, updateColor, resetColors } = useCustomColors();
   const { requestPermission } = useNotifications(tasks);
   const { theme, updateTheme, setPreset, resetTheme, presets } = useTheme();
-  const { addXP } = usePet();
 
   const [dialogOpen, setDialogOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -82,11 +76,6 @@ const Index = () => {
   };
 
   const handleToggleComplete = (taskId: string) => {
-    const task = tasks.find(t => t.id === taskId);
-    if (task && !task.completed) {
-      addXP(10);
-      toast.success('Task completed! +10 XP for your pet!');
-    }
     toggleComplete(taskId);
   };
 
@@ -109,7 +98,7 @@ const Index = () => {
         />
 
         {/* Top widgets row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
           <DailyFocus />
           <QuoteWidget />
           <FocusTimer />
@@ -119,9 +108,9 @@ const Index = () => {
         </div>
 
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-12 gap-3">
+        <div className="grid lg:grid-cols-12 gap-2">
           {/* Left sidebar */}
-          <div className="lg:col-span-3 space-y-3 order-2 lg:order-1">
+          <div className="lg:col-span-3 space-y-2 order-2 lg:order-1">
             <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
             <MiniCalendar />
             <DailyStreak />
@@ -129,7 +118,6 @@ const Index = () => {
             <MiniGames />
             <WordScramble />
             <EmojiCatch />
-            <PatternMemory />
           </div>
 
           {/* Center: Main schedule */}
@@ -150,8 +138,7 @@ const Index = () => {
           </div>
 
           {/* Right sidebar */}
-          <div className="lg:col-span-3 space-y-3 order-3">
-            <MusicPlayer />
+          <div className="lg:col-span-3 space-y-2 order-3">
             <ThemePicker
               theme={theme}
               presets={presets}
@@ -165,13 +152,13 @@ const Index = () => {
             <MathChallenge />
             <TypingSpeed />
             <ColorMatch />
+            <PatternMemory />
           </div>
         </div>
 
         {/* Bottom widgets row */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
           <MoodTracker />
-          <QuickNotes />
           <BreathingExercise />
           <CountdownTimer />
           <QuickPoll />

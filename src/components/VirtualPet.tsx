@@ -4,12 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePet } from '@/hooks/usePet';
-import { Sparkles, ShoppingBag, Shirt, Edit2, Check, Star } from 'lucide-react';
+import { Sparkles, Shirt, Edit2, Check } from 'lucide-react';
 
 export const VirtualPet = () => {
   const {
     pet,
-    buyClothing,
     equipClothing,
     unequipClothing,
     changePetType,
@@ -36,8 +35,9 @@ export const VirtualPet = () => {
       .join('');
   };
 
-  const xpToNextLevel = 100 - (pet.xp % 100);
-  const xpProgress = (pet.xp % 100);
+  const hats = clothingItems.filter(i => i.type === 'hat');
+  const accessories = clothingItems.filter(i => i.type === 'accessory');
+  const outfits = clothingItems.filter(i => i.type === 'outfit');
 
   return (
     <Card className="widget-card p-6 overflow-hidden">
@@ -115,12 +115,6 @@ export const VirtualPet = () => {
             <div className="absolute top-1 left-1/2 -translate-x-1/2 w-28 h-3 bg-gradient-to-b from-secondary/80 to-transparent rounded-full" />
           </div>
         </div>
-
-        {/* Level badge */}
-        <div className="absolute top-2 right-2 flex items-center gap-1 bg-gradient-to-r from-primary to-primary/70 text-primary-foreground px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-          <Star className="w-4 h-4 fill-current" />
-          Lv.{pet.level}
-        </div>
       </div>
 
       {/* Pet Name */}
@@ -149,34 +143,8 @@ export const VirtualPet = () => {
         </div>
       </div>
 
-      {/* XP Bar - Enhanced */}
-      <div className="mb-6 px-4">
-        <div className="flex justify-between text-xs text-muted-foreground mb-2">
-          <span className="font-medium">Experience</span>
-          <span className="font-bold text-primary">{pet.xp} XP</span>
-        </div>
-        <div className="relative h-4 bg-secondary/50 rounded-full overflow-hidden border border-border/50">
-          <div
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-primary/60 transition-all duration-700 ease-out"
-            style={{ width: `${xpProgress}%` }}
-          />
-          <div className="absolute inset-0 bg-gradient-to-b from-white/20 to-transparent" />
-          <div 
-            className="absolute inset-y-0 left-0 bg-gradient-to-r from-white/30 to-transparent transition-all duration-700"
-            style={{ width: `${xpProgress * 0.6}%` }}
-          />
-        </div>
-        <p className="text-xs text-center text-muted-foreground mt-2">
-          <span className="text-primary font-medium">{xpToNextLevel}</span> XP to level {pet.level + 1}
-        </p>
-      </div>
-
-      <Tabs defaultValue="shop" className="w-full">
-        <TabsList className="grid w-full grid-cols-3 mb-2">
-          <TabsTrigger value="shop" className="text-xs gap-1">
-            <ShoppingBag className="w-3 h-3" />
-            Shop
-          </TabsTrigger>
+      <Tabs defaultValue="closet" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-2">
           <TabsTrigger value="closet" className="text-xs gap-1">
             <Shirt className="w-3 h-3" />
             Closet
@@ -187,63 +155,76 @@ export const VirtualPet = () => {
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="shop" className="mt-2">
-          <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto p-1">
-            {clothingItems.filter(item => !pet.ownedClothing.includes(item.id)).map((item) => (
-              <button
-                key={item.id}
-                onClick={() => buyClothing(item.id)}
-                disabled={pet.xp < item.cost}
-                className={`group p-2 rounded-xl border transition-all duration-200 ${
-                  pet.xp >= item.cost
-                    ? 'border-border/50 hover:border-primary hover:bg-primary/10 hover:scale-105 hover:shadow-lg'
-                    : 'opacity-40 cursor-not-allowed border-border/20'
-                }`}
-              >
-                <span className="text-2xl block mb-1 group-hover:scale-110 transition-transform">{item.emoji}</span>
-                <span className="text-[10px] block truncate">{item.name}</span>
-                <span className={`text-[10px] font-bold ${pet.xp >= item.cost ? 'text-primary' : 'text-muted-foreground'}`}>
-                  {item.cost}
-                </span>
-              </button>
-            ))}
-            {clothingItems.filter(item => !pet.ownedClothing.includes(item.id)).length === 0 && (
-              <p className="col-span-4 text-center text-sm text-muted-foreground py-6">
-                🎉 You own everything!
-              </p>
-            )}
-          </div>
-        </TabsContent>
-
         <TabsContent value="closet" className="mt-2">
-          <div className="grid grid-cols-4 gap-2 max-h-52 overflow-y-auto p-1">
-            {pet.ownedClothing.map((itemId) => {
-              const item = clothingItems.find(i => i.id === itemId);
-              if (!item) return null;
-              const isEquipped = pet.equippedClothing.includes(itemId);
-              return (
-                <button
-                  key={itemId}
-                  onClick={() => isEquipped ? unequipClothing(itemId) : equipClothing(itemId)}
-                  className={`p-2 rounded-xl transition-all duration-200 ${
-                    isEquipped
-                      ? 'bg-primary/20 border-2 border-primary shadow-lg scale-105'
-                      : 'border border-border/50 hover:bg-secondary/50 hover:scale-105'
-                  }`}
-                >
-                  <span className="text-2xl block mb-1">{item.emoji}</span>
-                  <span className="text-[10px] block truncate">{item.name}</span>
-                  <span className={`text-[10px] ${isEquipped ? 'text-primary font-bold' : 'text-muted-foreground'}`}>
-                    {isEquipped ? '✓ On' : 'Wear'}
-                  </span>
-                </button>
-              );
-            })}
-            {pet.ownedClothing.length === 0 && (
-              <p className="col-span-4 text-center text-sm text-muted-foreground py-6">
-                Visit the shop to buy items!
-              </p>
-            )}
+          <div className="space-y-4 max-h-64 overflow-y-auto p-1">
+            {/* Hats */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">🎩 Hats</p>
+              <div className="grid grid-cols-5 gap-1">
+                {hats.map((item) => {
+                  const isEquipped = pet.equippedClothing.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => isEquipped ? unequipClothing(item.id) : equipClothing(item.id)}
+                      className={`p-2 rounded-lg transition-all ${
+                        isEquipped
+                          ? 'bg-primary/20 border-2 border-primary scale-105'
+                          : 'border border-border/50 hover:bg-secondary/50 hover:scale-105'
+                      }`}
+                    >
+                      <span className="text-xl">{item.emoji}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Accessories */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">✨ Accessories</p>
+              <div className="grid grid-cols-5 gap-1">
+                {accessories.map((item) => {
+                  const isEquipped = pet.equippedClothing.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => isEquipped ? unequipClothing(item.id) : equipClothing(item.id)}
+                      className={`p-2 rounded-lg transition-all ${
+                        isEquipped
+                          ? 'bg-primary/20 border-2 border-primary scale-105'
+                          : 'border border-border/50 hover:bg-secondary/50 hover:scale-105'
+                      }`}
+                    >
+                      <span className="text-xl">{item.emoji}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Outfits */}
+            <div>
+              <p className="text-xs font-medium text-muted-foreground mb-2">👕 Outfits</p>
+              <div className="grid grid-cols-5 gap-1">
+                {outfits.map((item) => {
+                  const isEquipped = pet.equippedClothing.includes(item.id);
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => isEquipped ? unequipClothing(item.id) : equipClothing(item.id)}
+                      className={`p-2 rounded-lg transition-all ${
+                        isEquipped
+                          ? 'bg-primary/20 border-2 border-primary scale-105'
+                          : 'border border-border/50 hover:bg-secondary/50 hover:scale-105'
+                      }`}
+                    >
+                      <span className="text-xl">{item.emoji}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </TabsContent>
 

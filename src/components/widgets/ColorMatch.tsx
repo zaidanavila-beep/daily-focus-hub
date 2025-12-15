@@ -1,9 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { usePet } from '@/hooks/usePet';
 import { Palette, RotateCcw } from 'lucide-react';
-import { toast } from 'sonner';
 
 const COLORS = [
   { name: 'Red', hex: '#ef4444' },
@@ -17,7 +15,6 @@ const COLORS = [
 ];
 
 export const ColorMatch = () => {
-  const { addXP } = usePet();
   const [targetColor, setTargetColor] = useState(COLORS[0]);
   const [textColor, setTextColor] = useState(COLORS[0]);
   const [score, setScore] = useState(0);
@@ -36,26 +33,15 @@ export const ColorMatch = () => {
   }, []);
 
   const handleAnswer = (matchesText: boolean) => {
-    const isCorrect = matchesText ? targetColor.name === textColor.name : targetColor.hex === textColor.hex && targetColor.name !== textColor.name;
-    
-    // Correct if: clicked "Name" and name matches, OR clicked "Color" and colors match but names don't
     const actuallyCorrect = matchesText 
       ? targetColor.name === textColor.name 
       : targetColor.name !== textColor.name;
     
     if (actuallyCorrect) {
       setScore(s => s + 1);
-      if ((score + 1) % 5 === 0) {
-        addXP(10);
-        toast.success('+10 XP! Keep going!');
-      }
     } else {
       setLives(l => {
-        if (l <= 1) {
-          setGameOver(true);
-          addXP(Math.floor(score / 2));
-          toast.info(`Game Over! +${Math.floor(score / 2)} XP`);
-        }
+        if (l <= 1) setGameOver(true);
         return l - 1;
       });
     }

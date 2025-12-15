@@ -2,14 +2,11 @@ import { useState, useEffect, useRef } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { usePet } from '@/hooks/usePet';
 import { Keyboard, RotateCcw } from 'lucide-react';
-import { toast } from 'sonner';
 
 const WORDS = ['apple', 'banana', 'cherry', 'dragon', 'elephant', 'forest', 'galaxy', 'harmony', 'island', 'jungle', 'kitchen', 'lemon', 'mountain', 'notebook', 'ocean', 'pizza', 'queen', 'rainbow', 'sunset', 'tiger'];
 
 export const TypingSpeed = () => {
-  const { addXP } = usePet();
   const [words, setWords] = useState<string[]>([]);
   const [input, setInput] = useState('');
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,9 +39,6 @@ export const TypingSpeed = () => {
         const calculatedWpm = Math.round(words.length / time);
         setWpm(calculatedWpm);
         setFinished(true);
-        const xp = Math.min(Math.floor(calculatedWpm / 5), 30);
-        addXP(xp);
-        toast.success(`+${xp} XP! ${calculatedWpm} WPM!`);
       } else {
         setCurrentIndex(i => i + 1);
       }

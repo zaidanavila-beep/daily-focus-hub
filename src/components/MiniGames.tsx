@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Gamepad2, RotateCcw } from 'lucide-react';
-import { usePet } from '@/hooks/usePet';
 import { toast } from 'sonner';
 
 const EMOJI_PAIRS = ['🎮', '🎯', '🎨', '🎸', '🎭', '🎪', '🎬', '🎤'];
@@ -15,7 +14,6 @@ interface MemoryCard {
 }
 
 export const MiniGames = () => {
-  const { addXP } = usePet();
   const [cards, setCards] = useState<MemoryCard[]>(() => initializeCards());
   const [flippedCards, setFlippedCards] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
@@ -63,7 +61,6 @@ export const MiniGames = () => {
       const secondCard = newCards.find(c => c.id === second);
 
       if (firstCard?.emoji === secondCard?.emoji) {
-        // Match!
         setTimeout(() => {
           setCards(prev =>
             prev.map(c =>
@@ -75,16 +72,12 @@ export const MiniGames = () => {
           setFlippedCards([]);
           setIsLocked(false);
 
-          // Check for win
           const matchedCount = newCards.filter(c => c.isMatched).length + 2;
           if (matchedCount === cards.length) {
-            const xpEarned = Math.max(20 - moves, 5);
-            addXP(xpEarned);
-            toast.success(`🎉 You won in ${moves + 1} moves! +${xpEarned} XP`);
+            toast.success(`🎉 You won in ${moves + 1} moves!`);
           }
         }, 500);
       } else {
-        // No match
         setTimeout(() => {
           setCards(prev =>
             prev.map(c =>
