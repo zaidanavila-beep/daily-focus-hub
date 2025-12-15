@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { DailyHeader } from '@/components/DailyHeader';
 import { DailyTimeline } from '@/components/DailyTimeline';
@@ -22,6 +22,17 @@ import { DiceRoller } from '@/components/DiceRoller';
 import { ReactionGame } from '@/components/ReactionGame';
 import { CookieClicker } from '@/components/CookieClicker';
 import { WordScramble } from '@/components/WordScramble';
+// New widgets
+import { CountdownTimer } from '@/components/widgets/CountdownTimer';
+import { TriviaQuiz } from '@/components/widgets/TriviaQuiz';
+import { TypingSpeed } from '@/components/widgets/TypingSpeed';
+import { ColorMatch } from '@/components/widgets/ColorMatch';
+import { MathChallenge } from '@/components/widgets/MathChallenge';
+import { EmojiCatch } from '@/components/widgets/EmojiCatch';
+import { PatternMemory } from '@/components/widgets/PatternMemory';
+import { QuickPoll } from '@/components/widgets/QuickPoll';
+import { DailyChallenge } from '@/components/widgets/DailyChallenge';
+import { LuckyWheel } from '@/components/widgets/LuckyWheel';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -81,7 +92,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
-      <div className="max-w-7xl mx-auto px-4 py-6 md:py-8">
+      <div className="max-w-[1600px] mx-auto px-4 py-6 md:py-8">
         {/* Home Link */}
         <Link to="/">
           <Button variant="ghost" size="sm" className="mb-4 gap-2">
@@ -98,22 +109,27 @@ const Index = () => {
         />
 
         {/* Top widgets row */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3 mb-4">
           <DailyFocus />
           <QuoteWidget />
           <FocusTimer />
           <DiceRoller />
+          <LuckyWheel />
+          <DailyChallenge />
         </div>
 
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-12 gap-4">
+        <div className="grid lg:grid-cols-12 gap-3">
           {/* Left sidebar */}
-          <div className="lg:col-span-3 space-y-4 order-2 lg:order-1">
+          <div className="lg:col-span-3 space-y-3 order-2 lg:order-1">
             <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
             <MiniCalendar />
             <DailyStreak />
+            <TriviaQuiz />
             <MiniGames />
             <WordScramble />
+            <EmojiCatch />
+            <PatternMemory />
           </div>
 
           {/* Center: Main schedule */}
@@ -134,7 +150,7 @@ const Index = () => {
           </div>
 
           {/* Right sidebar */}
-          <div className="lg:col-span-3 space-y-4 order-3">
+          <div className="lg:col-span-3 space-y-3 order-3">
             <MusicPlayer />
             <ThemePicker
               theme={theme}
@@ -146,14 +162,19 @@ const Index = () => {
             <ProductivityInsights tasks={tasks} />
             <ReactionGame />
             <CookieClicker />
+            <MathChallenge />
+            <TypingSpeed />
+            <ColorMatch />
           </div>
         </div>
 
         {/* Bottom widgets row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 mt-4">
           <MoodTracker />
           <QuickNotes />
           <BreathingExercise />
+          <CountdownTimer />
+          <QuickPoll />
         </div>
 
         <footer className="mt-6 text-center text-xs text-muted-foreground transition-colors duration-500">
