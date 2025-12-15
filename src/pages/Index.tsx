@@ -13,23 +13,14 @@ import { ThemePicker } from '@/components/ThemePicker';
 import { ProductivityInsights } from '@/components/ProductivityInsights';
 import { MoodTracker } from '@/components/MoodTracker';
 import { DailyStreak } from '@/components/DailyStreak';
-import { BreathingExercise } from '@/components/BreathingExercise';
 import { MiniGames } from '@/components/MiniGames';
 import { FocusTimer } from '@/components/FocusTimer';
 import { DiceRoller } from '@/components/DiceRoller';
 import { ReactionGame } from '@/components/ReactionGame';
-import { CookieClicker } from '@/components/CookieClicker';
-import { WordScramble } from '@/components/WordScramble';
-import { CountdownTimer } from '@/components/widgets/CountdownTimer';
 import { TriviaQuiz } from '@/components/widgets/TriviaQuiz';
-import { TypingSpeed } from '@/components/widgets/TypingSpeed';
-import { ColorMatch } from '@/components/widgets/ColorMatch';
 import { MathChallenge } from '@/components/widgets/MathChallenge';
-import { EmojiCatch } from '@/components/widgets/EmojiCatch';
-import { PatternMemory } from '@/components/widgets/PatternMemory';
-import { QuickPoll } from '@/components/widgets/QuickPoll';
-import { DailyChallenge } from '@/components/widgets/DailyChallenge';
 import { LuckyWheel } from '@/components/widgets/LuckyWheel';
+import { SlotMachine } from '@/components/widgets/SlotMachine';
 import { useTasks } from '@/hooks/useTasks';
 import { useCustomColors } from '@/hooks/useCustomColors';
 import { useNotifications } from '@/hooks/useNotifications';
@@ -81,10 +72,9 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background mesh-background transition-colors duration-500">
-      <div className="max-w-[1600px] mx-auto px-4 py-6 md:py-8">
-        {/* Home Link */}
+      <div className="max-w-[1600px] mx-auto px-3 py-4 md:py-6">
         <Link to="/">
-          <Button variant="ghost" size="sm" className="mb-4 gap-2">
+          <Button variant="ghost" size="sm" className="mb-3 gap-2">
             <Home className="w-4 h-4" />
             Home
           </Button>
@@ -98,13 +88,11 @@ const Index = () => {
         />
 
         {/* Top widgets row */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-3">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mb-2">
           <DailyFocus />
           <QuoteWidget />
           <FocusTimer />
-          <DiceRoller />
-          <LuckyWheel />
-          <DailyChallenge />
+          <DailyStreak />
         </div>
 
         {/* Main content grid */}
@@ -113,17 +101,15 @@ const Index = () => {
           <div className="lg:col-span-3 space-y-2 order-2 lg:order-1">
             <UpcomingTasks tasks={tasks} onTaskClick={handleTaskClick} />
             <MiniCalendar />
-            <DailyStreak />
             <TriviaQuiz />
             <MiniGames />
-            <WordScramble />
-            <EmojiCatch />
+            <SlotMachine />
           </div>
 
           {/* Center: Main schedule */}
           <div className="lg:col-span-6 order-1 lg:order-2">
-            <main className="widget-card p-4 md:p-6 transition-all duration-500">
-              <div className="flex items-center justify-between mb-4">
+            <main className="widget-card p-4 md:p-5 transition-all duration-500">
+              <div className="flex items-center justify-between mb-3">
                 <h2 className="font-serif text-xl">Today's Schedule</h2>
                 <span className="text-sm text-muted-foreground">
                   {tasks.length} {tasks.length === 1 ? 'task' : 'tasks'}
@@ -147,25 +133,20 @@ const Index = () => {
               onReset={resetTheme}
             />
             <ProductivityInsights tasks={tasks} />
+            <LuckyWheel />
+            <DiceRoller />
             <ReactionGame />
-            <CookieClicker />
             <MathChallenge />
-            <TypingSpeed />
-            <ColorMatch />
-            <PatternMemory />
           </div>
         </div>
 
-        {/* Bottom widgets row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-3">
+        {/* Bottom row */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2">
           <MoodTracker />
-          <BreathingExercise />
-          <CountdownTimer />
-          <QuickPoll />
         </div>
 
-        <footer className="mt-6 text-center text-xs text-muted-foreground transition-colors duration-500">
-          Click on any time slot to add a task • Tasks auto-clear at midnight • Complete tasks to earn XP!
+        <footer className="mt-4 text-center text-xs text-muted-foreground">
+          Click on any time slot to add a task • Tasks auto-clear at midnight
         </footer>
       </div>
 
